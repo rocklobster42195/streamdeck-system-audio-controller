@@ -1,6 +1,6 @@
-// Output dials in all four looks against a fake system audio (tools/fake-helper.mjs), plus
-// deckbus: a peer subscribes to the level. Writes deck snapshots to <outDir>/output/. Doesn't
-// touch the real volume.
+// Output dials in all four looks, then App dials, Mic and Device keys, against a fake system
+// audio (tools/fake-helper.mjs), plus deckbus: streams, the mic state, a subscriber. Writes deck
+// snapshots to <outDir>/output/. Does not touch the real system audio.
 //   node tools/sd-sim/output.mjs [outDir]
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -50,6 +50,34 @@ try {
     await sim.sleep(2000);
     check("the level streams to a subscriber", n > 20 && typeof last?.l === "number" && typeof last?.r === "number", `${n} values in 2 s, last ${JSON.stringify(last)}`);
     off();
+
+    // Apps, mic and devices: dials for Spotify, Firefox and an app that isn't running; keys below
+    for (const d of dials) sim.remove(d);
+    sim.add("output-dial", {}, { column: 0, controller: "Encoder" });
+    const spotify = sim.add("app-dial", { app: "spotify", appName: "Spotify" }, { column: 1, controller: "Encoder" });
+    sim.add("app-dial", { app: "firefox", appName: "Firefox", style: "ring" }, { column: 2, controller: "Encoder" });
+    sim.add("app-dial", { app: "discord", appName: "Discord", style: "pie" }, { column: 3, controller: "Encoder" });
+    const mic = sim.add("mic-key", {}, { column: 0, row: 0, controller: "Keypad" });
+    const toggle = sim.add("device-key", { device: "{sim-speakers}", deviceName: "Speakers (Sim Audio)", device2: "{sim-headphones}", device2Name: "Headphones (Sim USB)" }, { column: 1, row: 0, controller: "Keypad" });
+    sim.add("device-key", { device: "{sim-headphones}", deviceName: "Headphones (Sim USB)" }, { column: 2, row: 0, controller: "Keypad" });
+    sim.add("mic-key", {}, { column: 3, row: 0, controller: "Keypad" });
+    await sim.sleep(1500);
+    await sim.snapshot(out, "4-apps-mic-devices");
+    const topics = simSac().state.streams.map((s) => s.topic);
+    check("apps and the mic are offered as streams", ["meters/system-input", "meters/app-spotify", "meters/app-firefox"].every((t) => topics.includes(t)), topics.join(", "));
+
+    sim.rotate(spotify, -10);
+    sim.press(mic);
+    sim.press(toggle);
+    await sim.waitFor(() => simSac()?.state.mic?.muted === true && /Headphones/.test(simSac()?.state.status?.detail ?? ""), 5000, "mic muted, headphones default");
+    check("the Mic key mutes the mic (shared on the bus)", simSac().state.mic.muted === true);
+    check("the Device key switches to the headphones", /Headphones/.test(simSac().state.status.detail), simSac().state.status.detail);
+    await sim.sleep(600);
+    await sim.snapshot(out, "5-switched");
+    sim.press(toggle);
+    sim.press(mic);
+    await sim.waitFor(() => simSac()?.state.mic?.muted === false && /Speakers/.test(simSac()?.state.status?.detail ?? ""), 5000, "back");
+    check("pressed again: speakers and mic back", true);
 } finally {
     await sim.stop();
     peer.stop();

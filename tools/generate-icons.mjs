@@ -12,6 +12,9 @@ const root = "plugin/de.boriskemper.system-audio-controller.sdPlugin/imgs";
 // Action list icon: white on transparent (Stream Deck tints it). Key: the default key image.
 const actions = {
     "output-dial": mdi.mdiVolumeHigh,
+    "app-dial": mdi.mdiApplicationOutline,
+    "mic-key": mdi.mdiMicrophone,
+    "device-key": mdi.mdiHeadphones,
 };
 
 const listIcon = (d) => `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#ffffff" d="${d}"/></svg>`;

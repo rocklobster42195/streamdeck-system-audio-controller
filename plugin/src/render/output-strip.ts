@@ -1,7 +1,7 @@
 // The Output dial's touch-strip segment (200×100), in XR-C's four looks: "Digital" (LED bars and
 // a volume bar), "Classic" (analog VU meters), or just the volume as a ring or a pie.
 import { METER_TICKS, arc, escapeXml, meterBar, meterScaleMarks, mdi, pie, stripImage, text, textWidth, vuMeter } from "@rocklobster42195/streamdeck-kit";
-import { mdiAlertCircleOutline, mdiSpeaker, mdiVolumeOff } from "@mdi/js";
+import { mdiAlertCircleOutline, mdiApplicationOutline, mdiSleep, mdiSpeaker, mdiVolumeOff } from "@mdi/js";
 
 export type OutputStyle = "digital" | "classic" | "ring" | "pie";
 
@@ -72,9 +72,20 @@ function classic(v: OutputView): string {
     return stripImage(parts, "#141210");
 }
 
-/** Not ready: starting, failed, no output device, or not on Windows. */
-export function renderOutputMessage(kind: "starting" | "failed" | "unsupported" | "no-device", label: string, hint: string): string {
-    const icon = kind === "starting" || kind === "no-device" ? mdiSpeaker : mdiAlertCircleOutline;
+export type MessageKind = "starting" | "failed" | "unsupported" | "no-device" | "choose" | "not-running";
+
+const MESSAGE_ICONS: Record<MessageKind, string> = {
+    starting: mdiSpeaker,
+    "no-device": mdiSpeaker,
+    failed: mdiAlertCircleOutline,
+    unsupported: mdiAlertCircleOutline,
+    choose: mdiApplicationOutline,
+    "not-running": mdiSleep,
+};
+
+/** Not ready: starting, failed, no output device, not on Windows, no app chosen, app not running. */
+export function renderOutputMessage(kind: MessageKind, label: string, hint: string): string {
+    const icon = MESSAGE_ICONS[kind];
     const color = kind === "failed" ? MUTED : "#8a8a90";
     return stripImage([mdi(icon, 16, 34, 32, color), text(60, 46, label, { size: 14, weight: "bold", maxWidth: 132 }), text(60, 64, hint, { size: 11, color: "#a4a4aa", maxWidth: 132 })]);
 }

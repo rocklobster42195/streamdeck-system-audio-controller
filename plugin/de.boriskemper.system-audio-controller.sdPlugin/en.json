@@ -15,7 +15,16 @@
 			"unsupported": "Windows only",
 			"unsupported_hint": "macOS comes later",
 			"no_device": "No output device",
-			"no_device_hint": "Connect speakers or headphones"
+			"no_device_hint": "Connect speakers or headphones",
+			"choose_app": "Choose an app",
+			"choose_app_hint": "In the settings of this dial",
+			"not_running": "Not playing right now",
+			"no_mic": "No microphone",
+			"mic_muted": "MUTED",
+			"choose_device": "Choose a device",
+			"app_playing": "playing",
+			"device_default": "default now",
+			"device_none": "None"
 		},
 		"pi": {
 			"output_help": "Rotate: volume · Push or tap: mute. Shows the default output device.",
@@ -25,9 +34,26 @@
 			"style_ring": "Ring",
 			"style_pie": "Pie",
 			"title": "Name",
-			"title_placeholder": "The device's name",
+			"title_placeholder": "The device's or app's name",
 			"dial_controls": "Dial",
-			"dial_step": "Per step"
-		}
+			"dial_step": "Per step",
+			"app": "App",
+			"choose_app": "Choose an app",
+			"no_apps": "No app is playing sound right now. Start it, then open this list again.",
+			"app_help": "Rotate: the app's volume · Push or tap: mute. The app's volume is relative to the output volume, like in the Windows volume mixer.",
+			"mic_help": "Press: mute or unmute the microphone (the default input). The level moves only while an app records, e.g. during a call.",
+			"show_level": "Show the level",
+			"device": "Device",
+			"device2": "Second device (optional)",
+			"choose_device": "Choose a device",
+			"no_devices": "No output devices found.",
+			"device_help": "Press: make this device the default. With a second device, a press switches between the two."
+		},
+		"App": "App",
+		"One app's volume on a dial (Spotify, Firefox, …), with its level.": "One app's volume on a dial (Spotify, Firefox, …), with its level.",
+		"Microphone": "Microphone",
+		"Mute the microphone. Clearly red while muted.": "Mute the microphone. Clearly red while muted.",
+		"Output Device": "Output Device",
+		"Switch the default output device, e.g. headphones and speakers.": "Switch the default output device, e.g. headphones and speakers."
 	}
 }

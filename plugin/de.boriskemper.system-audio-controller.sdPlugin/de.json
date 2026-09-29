@@ -15,7 +15,16 @@
 			"unsupported": "Nur Windows",
 			"unsupported_hint": "macOS folgt später",
 			"no_device": "Kein Ausgabegerät",
-			"no_device_hint": "Lautsprecher oder Kopfhörer anschließen"
+			"no_device_hint": "Lautsprecher oder Kopfhörer anschließen",
+			"choose_app": "App wählen",
+			"choose_app_hint": "In den Einstellungen dieses Dials",
+			"not_running": "Spielt gerade nichts",
+			"no_mic": "Kein Mikrofon",
+			"mic_muted": "STUMM",
+			"choose_device": "Gerät wählen",
+			"app_playing": "spielt",
+			"device_default": "gerade Standard",
+			"device_none": "Keins"
 		},
 		"pi": {
 			"output_help": "Drehen: Lautstärke · Drücken oder Tippen: stumm. Zeigt das Standard-Ausgabegerät.",
@@ -25,9 +34,26 @@
 			"style_ring": "Ring",
 			"style_pie": "Torte",
 			"title": "Name",
-			"title_placeholder": "Der Name des Geräts",
+			"title_placeholder": "Der Name des Geräts oder der App",
 			"dial_controls": "Dial",
-			"dial_step": "Pro Schritt"
-		}
+			"dial_step": "Pro Schritt",
+			"app": "App",
+			"choose_app": "App wählen",
+			"no_apps": "Gerade gibt keine App Ton aus. Starte sie und öffne die Liste dann erneut.",
+			"app_help": "Drehen: Lautstärke der App · Drücken oder Tippen: stumm. Die Lautstärke der App gilt relativ zur Ausgabe, wie im Windows-Lautstärkemixer.",
+			"mic_help": "Drücken: Mikrofon (Standard-Eingabe) stumm oder wieder an. Der Pegel bewegt sich nur, solange eine App aufnimmt, z. B. in einem Anruf.",
+			"show_level": "Pegel zeigen",
+			"device": "Gerät",
+			"device2": "Zweites Gerät (optional)",
+			"choose_device": "Gerät wählen",
+			"no_devices": "Keine Ausgabegeräte gefunden.",
+			"device_help": "Drücken: macht dieses Gerät zum Standard. Mit einem zweiten Gerät wechselt ein Druck zwischen beiden."
+		},
+		"App": "App",
+		"One app's volume on a dial (Spotify, Firefox, …), with its level.": "Die Lautstärke einer App auf einem Dial (Spotify, Firefox, …), mit ihrem Pegel.",
+		"Microphone": "Mikrofon",
+		"Mute the microphone. Clearly red while muted.": "Schaltet das Mikrofon stumm. Deutlich rot, solange es stumm ist.",
+		"Output Device": "Ausgabegerät",
+		"Switch the default output device, e.g. headphones and speakers.": "Wechselt das Standard-Ausgabegerät, z. B. zwischen Kopfhörer und Lautsprechern."
 	}
 }

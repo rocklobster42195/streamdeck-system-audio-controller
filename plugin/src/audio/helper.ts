@@ -1,18 +1,33 @@
 // The audio helper process (helper/sac-audio.ps1 on Windows): started once, restarted with a
-// growing pause when it dies, JSON lines both ways (see helper/CoreAudio.cs for the messages).
+// growing pause when it dies, JSON lines both ways (see helper/Helper.cs for the messages).
 // SAC_HELPER=<file.mjs> runs a Node stand-in instead (the simulator's fake system audio).
 import { spawn, type ChildProcess } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+export type Flow = "out" | "in";
+export type OutputDevice = { id: string; name: string; default: boolean };
+export type AppInfo = { app: string; name: string; v: number; muted: boolean; active: boolean };
+
 export type HelperMessage =
     | { t: "ready" }
-    | { t: "device"; id: string; name: string }
-    | { t: "volume"; v: number; muted: boolean }
-    | { t: "meter"; l: number; r: number }
+    | { t: "device"; flow: Flow; id: string; name: string }
+    | { t: "volume"; flow: Flow; v: number; muted: boolean }
+    | { t: "meter"; flow: Flow; l: number; r: number }
+    | { t: "devices"; list: OutputDevice[] }
+    | { t: "apps"; list: AppInfo[] }
+    | { t: "appmeter"; app: string; l: number; r: number }
     | { t: "error"; message: string };
 
-export type HelperCommand = { cmd: "volume"; v: number } | { cmd: "mute"; on: boolean } | { cmd: "meters"; on: boolean } | { cmd: "quit" };
+export type HelperCommand =
+    | { cmd: "volume"; flow: Flow; v: number }
+    | { cmd: "mute"; flow: Flow; on: boolean }
+    | { cmd: "meters"; flow: Flow; on: boolean }
+    | { cmd: "default"; id: string }
+    | { cmd: "appvolume"; app: string; v: number }
+    | { cmd: "appmute"; app: string; on: boolean }
+    | { cmd: "appmeters"; apps: string }
+    | { cmd: "quit" };
 
 const RESTART_MS = [1000, 2000, 5000, 10_000, 30_000];
 

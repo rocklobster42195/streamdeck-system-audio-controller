@@ -46,6 +46,59 @@
                     "Image": "imgs/actions/output-dial/key"
                 }
             ]
+        },
+        {
+            "Name": "App",
+            "UUID": "de.boriskemper.system-audio-controller.app-dial",
+            "Icon": "imgs/actions/app-dial/icon",
+            "Tooltip": "One app's volume on a dial (Spotify, Firefox, …), with its level.",
+            "PropertyInspectorPath": "ui/app-dial.html",
+            "Controllers": [
+                "Encoder"
+            ],
+            "Encoder": {
+                "layout": "layouts/canvas.json",
+                "TriggerDescription": {
+                    "Rotate": "Volume",
+                    "Push": "Mute",
+                    "Touch": "Mute"
+                }
+            },
+            "States": [
+                {
+                    "Image": "imgs/actions/app-dial/key"
+                }
+            ]
+        },
+        {
+            "Name": "Microphone",
+            "UUID": "de.boriskemper.system-audio-controller.mic-key",
+            "Icon": "imgs/actions/mic-key/icon",
+            "Tooltip": "Mute the microphone. Clearly red while muted.",
+            "PropertyInspectorPath": "ui/mic-key.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/mic-key/key"
+                }
+            ]
+        },
+        {
+            "Name": "Output Device",
+            "UUID": "de.boriskemper.system-audio-controller.device-key",
+            "Icon": "imgs/actions/device-key/icon",
+            "Tooltip": "Switch the default output device, e.g. headphones and speakers.",
+            "PropertyInspectorPath": "ui/device-key.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/device-key/key"
+                }
+            ]
         }
     ]
 }

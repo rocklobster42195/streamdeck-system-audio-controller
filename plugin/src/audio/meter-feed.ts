@@ -1,7 +1,7 @@
-// The output level for one dial: asks for meters while the dial shows them, and turns the raw
+// The level for one dial or key: asks for a source's meters while it shows them, and turns the raw
 // values into what to draw (digital ballistics with peak hold, VU needles).
 import { MeterBallistics, VuBallistics, dbfsToVu } from "@rocklobster42195/streamdeck-kit";
-import { systemAudio } from "./system-audio";
+import { systemAudio, type MeterSource } from "./system-audio";
 
 export type MeterFrame = { levels: number[]; peaks: number[]; vus: number[] };
 
@@ -10,26 +10,28 @@ const SILENT = -128;
 export class MeterFeed {
     private readonly meters = [new MeterBallistics(), new MeterBallistics()];
     private readonly needles = [new VuBallistics(), new VuBallistics()];
-    private wanted = false;
+    private source: MeterSource | undefined;
 
     constructor(private readonly owner: string) {}
 
-    update(wanted: boolean): void {
-        if (wanted === this.wanted) return;
-        this.wanted = wanted;
-        systemAudio.wantMeters(this.owner, wanted);
+    /** Show the level of `source` (undefined = none). Safe to call often. */
+    update(source: MeterSource | undefined): void {
+        if (source === this.source) return;
+        if (this.source) systemAudio.wantMeters(this.source, this.owner, false);
+        this.source = source;
+        if (source) systemAudio.wantMeters(source, this.owner, true);
     }
 
     get active(): boolean {
-        return this.wanted;
+        return !!this.source;
     }
 
     stop(): void {
-        this.update(false);
+        this.update(undefined);
     }
 
     frame(now = Date.now()): MeterFrame {
-        const m = systemAudio.meter;
+        const m = this.source ? systemAudio.meter(this.source) : undefined;
         const measured = [m?.l ?? SILENT, m?.r ?? SILENT];
         const states = measured.map((db, i) => this.meters[i].update(db, now));
         return {

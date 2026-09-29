@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>App</title>
+  <link rel="stylesheet" href="pi-theme.css" />
+  <link rel="stylesheet" href="sac.css" />
+  <script src="locales.generated.js"></script>
+  <script src="pi.js"></script>
+</head>
+
+<body hidden>
+  <div class="pi-hint sac-help" data-i18n="pi.app_help"></div>
+
+  <pi-section title="pi.app">
+    <pi-select setting="app" source="apps" label-setting="appName" placeholder="pi.choose_app" empty="pi.no_apps"></pi-select>
+  </pi-section>
+
+  <pi-section title="pi.display">
+    <pi-choice setting="style" default="digital" columns="4" data-options='[
+      {"value":"digital","label":"pi.style_digital","icon":"digital"},
+      {"value":"classic","label":"pi.style_classic","icon":"classic"},
+      {"value":"ring","label":"pi.style_ring","icon":"ring"},
+      {"value":"pie","label":"pi.style_pie","icon":"pie"}
+    ]'></pi-choice>
+    <pi-field setting="title" label="pi.title" placeholder="pi.title_placeholder"></pi-field>
+  </pi-section>
+
+  <pi-section title="pi.dial_controls">
+    <pi-range setting="step" min="1" max="10" step="1" default="2" unit=" %" label="pi.dial_step"></pi-range>
+  </pi-section>
+
+  <div class="pi-footer"><span data-plugin-version>SA-C</span></div>
+</body>
+
+</html>

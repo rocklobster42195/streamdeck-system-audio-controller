@@ -1,6 +1,6 @@
 # SA-C — System Audio Controller for Stream Deck
 
-Your computer's volume on a Stream Deck + dial, with a live level meter of whatever is playing: Spotify, YouTube, games, calls. SA-C also shares that level with other Stream Deck plugins through **deckbus**, so, for example, the Panorama of [MA-C (Music Assistant Controller)](https://github.com/rocklobster42195/streamdeck-music-assistant-controller) can move with the music on your PC.
+Your computer's sound on your Stream Deck: the volume with a live level meter, each app's volume (Spotify, Firefox, Discord, …), a mic mute key, and a key to switch between headphones and speakers. SA-C also shares that level with other Stream Deck plugins through **deckbus**, so, for example, the Panorama of [MA-C (Music Assistant Controller)](https://github.com/rocklobster42195/streamdeck-music-assistant-controller) can move with the music on your PC.
 
 > Unofficial community plugin. Not affiliated with Elgato or Microsoft.
 
@@ -39,6 +39,33 @@ SA-C measures the level only while a dial that shows it is visible, or while ano
 
 By default the display shows the device's name (e.g. "Speakers (Realtek Audio)"). Give it your own name in the settings.
 
+### App *(dial, Stream Deck + only)*
+
+One app's volume, like in the Windows volume mixer: Spotify, Firefox, Discord, a game. Choose the app in the dial's settings; the list shows the apps that have played sound since they started, playing ones first.
+
+| Control | What it does |
+|---|---|
+| Rotate | The app's volume |
+| Push / tap | Mute / unmute the app |
+
+- The app's volume is relative to the output volume: 100 % means "as loud as the output".
+- The display has the same four looks as the Output dial; the meter shows only this app's sound.
+- While the app is closed, the dial says so and waits. It picks the app up again when it plays.
+- Apps with several audio streams (browsers) are changed together.
+
+### Microphone *(key)*
+
+Press to mute or unmute your default microphone. While muted, the key is **red** with a crossed-out mic, so you see it from across the room. Otherwise it shows a small level. The level moves only while an app records (a call, a recording): Windows measures a mic only then.
+
+### Output Device *(key)*
+
+Switches the default output device.
+
+- **One device chosen:** a press makes it the default (e.g. one key for the headphones, one for the speakers).
+- **Two devices chosen:** a press switches between them.
+
+The key shows the device with a matching icon (headphones, speakers, monitor) and gets a frame while it is the default. SA-C sets it as the default for everything: music, videos and calls.
+
 ## Requirements
 
 - Windows 10 or 11
@@ -51,7 +78,11 @@ SA-C talks to other Stream Deck plugins on your computer through **deckbus**, a 
 
 **Offers:**
 - whether the system audio is available, with the output device's name;
-- the level of your computer's output, as the stream `meters/system-output`. It goes out only while another plugin actually uses it, for example MA-C's Panorama with **Audio source** set to your output device.
+- whether the mic is muted (`mic`), so other plugins could show it;
+- levels, each sent only while another plugin actually uses it:
+  - your computer's output as `meters/system-output` (e.g. MA-C's Panorama with **Audio source** set to your output device);
+  - the mic as `meters/system-input`;
+  - every app with sound, e.g. `meters/app-spotify`, so MA-C's Panorama can move with Spotify only.
 
 **Uses:** nothing yet.
 
@@ -61,9 +92,10 @@ deckbus stays on your computer. It uses local pipes, plugins must know a key sto
 
 ## How it works
 
-Node.js, which Stream Deck plugins run on, can't reach the Windows audio system by itself. SA-C therefore starts a small helper once: a PowerShell script (`helper/sac-audio.ps1`) that compiles a short C# file (`helper/CoreAudio.cs`) for Windows Core Audio. Both are plain text in the plugin folder, so you can read exactly what they do. There is no program to install and nothing that runs when Stream Deck is closed.
+Node.js, which Stream Deck plugins run on, can't reach the Windows audio system by itself. SA-C therefore starts a small helper once: a PowerShell script (`helper/sac-audio.ps1`) that compiles two short C# files (`helper/Interop.cs`, `helper/Helper.cs`) for Windows Core Audio. Both are plain text in the plugin folder, so you can read exactly what they do. There is no program to install and nothing that runs when Stream Deck is closed.
 
-- The helper reads and sets the volume and mute of the default output device, and reads its level (about 20 times per second, only while needed).
+- The helper reads and sets the volume and mute of the default output and input device and of each app, and reads their levels (about 20 times per second, only while needed).
+- Switching the default device uses the same Windows interface as the Windows sound settings (`IPolicyConfig`, not officially documented, but stable since Windows 7).
 - Plugin and helper talk through simple JSON lines.
 - The helper needs about half a second to start, once per plugin start.
 - SA-C sends nothing to the internet.
@@ -73,12 +105,10 @@ Node.js, which Stream Deck plugins run on, can't reach the Windows audio system 
 - **"Audio not available"**: the helper stopped. SA-C restarts it by itself. If it stays, look at the plugin log (`logs/` in the plugin folder). Some company PCs block PowerShell scripts or compiling C# (`Add-Type`); then SA-C can't work there.
 - **"No output device"**: Windows has no active output device. Plug in speakers or headphones, or choose one in the Windows sound settings.
 - **The meter doesn't move**: nothing is playing, or the app plays to a device that isn't the default.
+- **An app is missing from the App list**: it hasn't played sound yet since it started. Play something, then open the list again.
 
 ## Planned
 
-- **Mic key**: mute the microphone, clearly red when muted; the mic state shared on deckbus.
-- **Device key**: switch the default output device (e.g. headphones ↔ speakers).
-- Volume per application (Spotify, browser, Discord).
 - Lowering the volume for other plugins, with your permission (see above).
 - macOS.
 
@@ -89,7 +119,7 @@ npm install
 npm run build        # plugin bundle and PI
 npm run check        # build, tests, lint, manifest validation
 npm run icons        # action and plugin icons
-npm run sim:output   # Output dials in all looks against a fake system audio, deckbus check → sim-out/output/
+npm run sim:output   # all actions against a fake system audio, deckbus checks → sim-out/output/
 npm run link -w sac-plugin   # install the dev build into Stream Deck
 ```
 

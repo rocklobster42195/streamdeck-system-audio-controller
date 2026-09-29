@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Output Device</title>
+  <link rel="stylesheet" href="pi-theme.css" />
+  <link rel="stylesheet" href="sac.css" />
+  <script src="locales.generated.js"></script>
+  <script src="pi.js"></script>
+</head>
+
+<body hidden>
+  <div class="pi-hint sac-help" data-i18n="pi.device_help"></div>
+
+  <pi-section title="pi.device">
+    <pi-select setting="device" source="output-devices" label-setting="deviceName" placeholder="pi.choose_device" empty="pi.no_devices"></pi-select>
+  </pi-section>
+
+  <pi-section title="pi.device2">
+    <pi-select setting="device2" source="output-devices-optional" label-setting="device2Name" placeholder="pi.choose_device" empty="pi.no_devices"></pi-select>
+  </pi-section>
+
+  <div class="pi-footer"><span data-plugin-version>SA-C</span></div>
+</body>
+
+</html>
