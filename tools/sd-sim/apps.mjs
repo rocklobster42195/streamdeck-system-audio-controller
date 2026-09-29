@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 import { startSim } from "./sim.mjs";
 
 process.env.SAC_HELPER = fileURLToPath(new URL("../fake-helper.mjs", import.meta.url));
+// The invented icons stay out of the real plugin's cache
+process.env.SAC_CACHE_DIR = fileURLToPath(new URL("../../sim-out/cache", import.meta.url));
 process.env.SAC_FAKE_QUIT = "firefox";
 const out = path.resolve(process.argv[2] ?? "sim-out", "apps");
 

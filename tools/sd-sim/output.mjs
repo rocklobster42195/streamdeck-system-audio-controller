@@ -8,6 +8,8 @@ import { DeckBus } from "@rocklobster42195/streamdeck-kit/bus";
 import { startSim } from "./sim.mjs";
 
 process.env.SAC_HELPER = fileURLToPath(new URL("../fake-helper.mjs", import.meta.url));
+// The invented icons stay out of the real plugin's cache
+process.env.SAC_CACHE_DIR = fileURLToPath(new URL("../../sim-out/cache", import.meta.url));
 const out = path.resolve(process.argv[2] ?? "sim-out", "output");
 const results = [];
 const check = (name, ok, detail = "") => {

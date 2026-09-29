@@ -1,6 +1,6 @@
 // App icons from the helper (colour and greyed out), kept in memory and on disk next to the
 // plugin (cache/icons/), so a dial or key can show an app's icon while the app isn't running,
-// also after a restart.
+// also after a restart. SAC_CACHE_DIR moves the cache (the simulator keeps its invented icons apart).
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,7 +11,7 @@ const icons = new Map<string, Icons | null>();
 
 /** bin/plugin.js → ../cache/icons */
 function dir(): string {
-    return path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "cache", "icons");
+    return process.env.SAC_CACHE_DIR ? path.join(process.env.SAC_CACHE_DIR, "icons") : path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "cache", "icons");
 }
 
 const file = (key: string, grey: boolean) => path.join(dir(), `${key.replace(/[^a-z0-9._-]/gi, "_")}${grey ? ".grey" : ""}.png`);
