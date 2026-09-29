@@ -15,9 +15,13 @@ const check = (name, ok, detail = "") => {
     console.log(`${ok ? "PASS" : "FAIL"}  ${name}${detail ? `  (${detail})` : ""}`);
 };
 
-const sim = await startSim({ language: "en" });
 const peer = new DeckBus({ id: "sim-listener", name: "Listener", version: "1", scanMs: 500 });
 await peer.start();
+// Plugins already on the bus (e.g. SA-C in the real Stream Deck, same id and name) aren't the one under test
+await new Promise((r) => setTimeout(r, 1200));
+const before = new Set(peer.peers().map((p) => p.slot));
+const simSac = () => peer.peers().find((p) => p.name === "SA-C" && !before.has(p.slot));
+const sim = await startSim({ language: "en" });
 try {
     const dials = ["digital", "classic", "ring", "pie"].map((style, column) => sim.add("output-dial", { style }, { column, controller: "Encoder" }));
     await sim.sleep(1500);
@@ -32,12 +36,14 @@ try {
     sim.dialPress(dials[0]);
     await sim.sleep(300);
 
-    await sim.waitFor(() => peer.peers().some((p) => p.name === "SA-C" && p.state.streams?.length), 10000, "SA-C on the bus");
-    const sac = peer.peers().find((p) => p.name === "SA-C");
+    await sim.waitFor(() => simSac()?.state.streams?.length, 10000, "SA-C on the bus");
+    const sac = simSac();
     check("SA-C offers the system output", sac.state.streams[0]?.topic === "meters/system-output" && sac.state.status?.online, JSON.stringify(sac.state));
+    check("SA-C shares its four visible dials", sac.state.actions?.length === 4 && sac.state.actions.every((a, i) => a.column === i && a.controller === "Encoder"), JSON.stringify(sac.state.actions?.[0]));
     let n = 0;
     let last;
-    const off = peer.subscribe("meters/system-output", (data) => {
+    const off = peer.subscribe("meters/system-output", (data, from) => {
+        if (from.slot !== sac.slot) return;
         n++;
         last = data;
     });

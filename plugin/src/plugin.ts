@@ -3,13 +3,14 @@ import { piBridge } from "@rocklobster42195/streamdeck-kit/bridge";
 import { setKitLogger } from "@rocklobster42195/streamdeck-kit";
 import { OutputDial } from "./actions/output-dial";
 import { systemAudio } from "./audio/system-audio";
-import { startSacBus } from "./bus/sac-bus";
+import { startSacBus, trackSacActions } from "./bus/sac-bus";
 
 streamDeck.logger.setLevel("info");
 setKitLogger(streamDeck.logger);
 
 streamDeck.actions.registerAction(new OutputDial());
 piBridge.init();
+trackSacActions();
 
 await streamDeck.connect();
 systemAudio.start();
