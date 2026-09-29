@@ -1,0 +1,33 @@
+{
+	"Description": "Lautstärke und Pegel deines Computers auf dem Stream Deck.",
+	"Name": "System Audio Controller",
+	"Category": "System Audio Controller",
+	"Localization": {
+		"Output": "Ausgabe",
+		"The computer's volume on a dial, with the level of what is playing.": "Die Lautstärke des Computers auf einem Dial, mit dem Pegel dessen, was gerade läuft.",
+		"Volume": "Lautstärke",
+		"Mute": "Stumm",
+		"key": {
+			"starting": "Startet…",
+			"starting_hint": "Verbinde mit Windows-Audio",
+			"failed": "Audio nicht verfügbar",
+			"failed_hint": "Helfer beendet, neuer Versuch",
+			"unsupported": "Nur Windows",
+			"unsupported_hint": "macOS folgt später",
+			"no_device": "Kein Ausgabegerät",
+			"no_device_hint": "Lautsprecher oder Kopfhörer anschließen"
+		},
+		"pi": {
+			"output_help": "Drehen: Lautstärke · Drücken oder Tippen: stumm. Zeigt das Standard-Ausgabegerät.",
+			"display": "Anzeige",
+			"style_digital": "Digital",
+			"style_classic": "Klassisch",
+			"style_ring": "Ring",
+			"style_pie": "Torte",
+			"title": "Name",
+			"title_placeholder": "Der Name des Geräts",
+			"dial_controls": "Dial",
+			"dial_step": "Pro Schritt"
+		}
+	}
+}

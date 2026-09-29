@@ -1,0 +1,51 @@
+{
+    "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+    "Name": "System Audio Controller",
+    "Version": "0.1.0.0",
+    "Author": "Boris Kemper",
+    "Category": "System Audio Controller",
+    "CategoryIcon": "imgs/plugin/category-icon",
+    "CodePath": "bin/plugin.js",
+    "Description": "Your computer's volume and level on your Stream Deck, shared with other plugins through deckbus.\nUnofficial community plugin, not affiliated with Elgato or Microsoft.\n\nIcons by https://pictogrammers.com",
+    "Icon": "imgs/plugin/marketplace",
+    "SDKVersion": 3,
+    "Software": {
+        "MinimumVersion": "7.1"
+    },
+    "OS": [
+        {
+            "Platform": "windows",
+            "MinimumVersion": "10"
+        }
+    ],
+    "Nodejs": {
+        "Version": "24",
+        "Debug": "enabled"
+    },
+    "UUID": "de.boriskemper.system-audio-controller",
+    "Actions": [
+        {
+            "Name": "Output",
+            "UUID": "de.boriskemper.system-audio-controller.output-dial",
+            "Icon": "imgs/actions/output-dial/icon",
+            "Tooltip": "The computer's volume on a dial, with the level of what is playing.",
+            "PropertyInspectorPath": "ui/output-dial.html",
+            "Controllers": [
+                "Encoder"
+            ],
+            "Encoder": {
+                "layout": "layouts/canvas.json",
+                "TriggerDescription": {
+                    "Rotate": "Volume",
+                    "Push": "Mute",
+                    "Touch": "Mute"
+                }
+            },
+            "States": [
+                {
+                    "Image": "imgs/actions/output-dial/key"
+                }
+            ]
+        }
+    ]
+}

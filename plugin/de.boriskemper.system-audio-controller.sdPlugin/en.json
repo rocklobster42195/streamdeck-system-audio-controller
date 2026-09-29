@@ -1,0 +1,33 @@
+{
+	"Description": "Your computer's volume and level on your Stream Deck.",
+	"Name": "System Audio Controller",
+	"Category": "System Audio Controller",
+	"Localization": {
+		"Output": "Output",
+		"The computer's volume on a dial, with the level of what is playing.": "The computer's volume on a dial, with the level of what is playing.",
+		"Volume": "Volume",
+		"Mute": "Mute",
+		"key": {
+			"starting": "Starting…",
+			"starting_hint": "Connecting to Windows audio",
+			"failed": "Audio not available",
+			"failed_hint": "Helper stopped, retrying",
+			"unsupported": "Windows only",
+			"unsupported_hint": "macOS comes later",
+			"no_device": "No output device",
+			"no_device_hint": "Connect speakers or headphones"
+		},
+		"pi": {
+			"output_help": "Rotate: volume · Push or tap: mute. Shows the default output device.",
+			"display": "Display",
+			"style_digital": "Digital",
+			"style_classic": "Classic",
+			"style_ring": "Ring",
+			"style_pie": "Pie",
+			"title": "Name",
+			"title_placeholder": "The device's name",
+			"dial_controls": "Dial",
+			"dial_step": "Per step"
+		}
+	}
+}
