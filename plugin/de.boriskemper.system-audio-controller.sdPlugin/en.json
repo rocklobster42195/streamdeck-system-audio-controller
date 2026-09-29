@@ -18,7 +18,6 @@
 			"no_device_hint": "Connect speakers or headphones",
 			"choose_app": "Choose an app",
 			"choose_app_hint": "In the settings of this dial",
-			"not_running": "Not playing right now",
 			"no_mic": "No microphone",
 			"mic_muted": "MUTED",
 			"choose_device": "Choose a device",
@@ -47,13 +46,16 @@
 			"device2": "Second device (optional)",
 			"choose_device": "Choose a device",
 			"no_devices": "No output devices found.",
-			"device_help": "Press: make this device the default. With a second device, a press switches between the two."
+			"device_help": "Press: make this device the default. With a second device, a press switches between the two.",
+			"app_key_help": "Press: mute or unmute the app. The key shows the app's icon; red while muted, grey while the app isn't running."
 		},
 		"App": "App",
 		"One app's volume on a dial (Spotify, Firefox, …), with its level.": "One app's volume on a dial (Spotify, Firefox, …), with its level.",
 		"Microphone": "Microphone",
 		"Mute the microphone. Clearly red while muted.": "Mute the microphone. Clearly red while muted.",
 		"Output Device": "Output Device",
-		"Switch the default output device, e.g. headphones and speakers.": "Switch the default output device, e.g. headphones and speakers."
+		"Switch the default output device, e.g. headphones and speakers.": "Switch the default output device, e.g. headphones and speakers.",
+		"App Mute": "App Mute",
+		"Mute one app (Spotify, Discord, …) with a key that shows its icon.": "Mute one app (Spotify, Discord, …) with a key that shows its icon."
 	}
 }

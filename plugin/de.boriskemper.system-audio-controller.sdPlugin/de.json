@@ -18,7 +18,6 @@
 			"no_device_hint": "Lautsprecher oder Kopfhörer anschließen",
 			"choose_app": "App wählen",
 			"choose_app_hint": "In den Einstellungen dieses Dials",
-			"not_running": "Spielt gerade nichts",
 			"no_mic": "Kein Mikrofon",
 			"mic_muted": "STUMM",
 			"choose_device": "Gerät wählen",
@@ -47,13 +46,16 @@
 			"device2": "Zweites Gerät (optional)",
 			"choose_device": "Gerät wählen",
 			"no_devices": "Keine Ausgabegeräte gefunden.",
-			"device_help": "Drücken: macht dieses Gerät zum Standard. Mit einem zweiten Gerät wechselt ein Druck zwischen beiden."
+			"device_help": "Drücken: macht dieses Gerät zum Standard. Mit einem zweiten Gerät wechselt ein Druck zwischen beiden.",
+			"app_key_help": "Drücken: App stumm oder wieder an. Die Taste zeigt das Icon der App; rot, solange sie stumm ist, grau, solange sie nicht läuft."
 		},
 		"App": "App",
 		"One app's volume on a dial (Spotify, Firefox, …), with its level.": "Die Lautstärke einer App auf einem Dial (Spotify, Firefox, …), mit ihrem Pegel.",
 		"Microphone": "Mikrofon",
 		"Mute the microphone. Clearly red while muted.": "Schaltet das Mikrofon stumm. Deutlich rot, solange es stumm ist.",
 		"Output Device": "Ausgabegerät",
-		"Switch the default output device, e.g. headphones and speakers.": "Wechselt das Standard-Ausgabegerät, z. B. zwischen Kopfhörer und Lautsprechern."
+		"Switch the default output device, e.g. headphones and speakers.": "Wechselt das Standard-Ausgabegerät, z. B. zwischen Kopfhörer und Lautsprechern.",
+		"App Mute": "App stumm",
+		"Mute one app (Spotify, Discord, …) with a key that shows its icon.": "Schaltet eine App (Spotify, Discord, …) stumm, auf einer Taste mit ihrem Icon."
 	}
 }

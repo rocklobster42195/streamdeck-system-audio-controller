@@ -23,10 +23,11 @@ export type VolumeDialSettings = {
     title?: string;
 } & JsonObject;
 
-/** What a dial controls right now, or a message why it can't. */
+/** What a dial controls right now, an app that isn't running (drawn greyed out), or a message why it can't. */
 export type Target =
-    | { name: string; volume: number; muted: boolean; meter: MeterSource; setVolume: (v: number) => void; setMuted: (on: boolean) => void }
-    | { message: "choose" | "no-device" | "not-running"; name?: string };
+    | { name: string; volume: number; muted: boolean; meter: MeterSource; icon?: string; setVolume: (v: number) => void; setMuted: (on: boolean) => void }
+    | { inactive: true; name: string; volume: number | undefined; muted: boolean; icon?: string }
+    | { message: "choose" | "no-device" };
 
 type Instance<S> = { action: DialAction<S>; settings: S; feed: MeterFeed; lastImage?: string };
 
@@ -85,14 +86,14 @@ export abstract class VolumeDial<S extends VolumeDialSettings> extends Singleton
         const inst = this.instances.get(id);
         if (!inst || systemAudio.state !== "ready") return undefined;
         const t = this.target(inst.settings);
-        return "message" in t ? undefined : t;
+        return "message" in t || "inactive" in t ? undefined : t;
     }
 
     private refresh(id: string): void {
         const inst = this.instances.get(id);
         if (!inst) return;
         const t = systemAudio.state === "ready" ? this.target(inst.settings) : undefined;
-        inst.feed.update(t && !("message" in t) && showsMeter(inst.settings.style ?? "digital") ? t.meter : undefined);
+        inst.feed.update(t && !("message" in t) && !("inactive" in t) && showsMeter(inst.settings.style ?? "digital") ? t.meter : undefined);
         if (inst.feed.active) {
             frames.run(`${this.key}-${id}`, () => {
                 if (this.instances.get(id) !== inst || !inst.feed.active) return false;
@@ -119,13 +120,14 @@ export abstract class VolumeDial<S extends VolumeDialSettings> extends Singleton
         const target = this.target(inst.settings);
         if ("message" in target) {
             if (target.message === "choose") return renderOutputMessage("choose", t("key.choose_app"), t("key.choose_app_hint"));
-            if (target.message === "not-running") return renderOutputMessage("not-running", inst.settings.title?.trim() || target.name || "", t("key.not_running"));
             return renderOutputMessage("no-device", t("key.no_device"), t("key.no_device_hint"));
         }
         return renderOutputStrip({
             name: inst.settings.title?.trim() || target.name,
             volume: target.volume,
             muted: target.muted,
+            icon: target.icon,
+            inactive: "inactive" in target,
             style: inst.settings.style ?? "digital",
             ...inst.feed.frame(),
         });

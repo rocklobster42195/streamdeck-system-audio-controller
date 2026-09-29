@@ -10,6 +10,7 @@
 //   {"t":"devices","list":[{"id":"…","name":"…","default":true}]}       active output devices, on change
 //   {"t":"apps","list":[{"app":"spotify","name":"Spotify","v":1,"muted":false,"active":true}]}   on change
 //   {"t":"appmeter","app":"spotify","l":-20.1,"r":-21.0}                ~20/s for the apps asked for
+//   {"t":"appicon","app":"spotify","png":"<base64>","grey":"<base64>"}    once per app: its icon, 128×128, and greyed
 //   {"t":"error","message":"…"}
 // In:
 //   {"cmd":"volume","flow":"out","v":0.5}   {"cmd":"mute","flow":"in","on":true}   {"cmd":"meters","flow":"out","on":true}
@@ -117,6 +118,8 @@ namespace SacAudio
         static readonly Endpoint input = new Endpoint(eCapture, "in");
         static Dictionary<string, App> apps = new Dictionary<string, App>();
         static readonly Dictionary<uint, string[]> processNames = new Dictionary<uint, string[]>();
+        /** Apps whose icon went out already (once per helper run). */
+        static readonly HashSet<string> iconsSent = new HashSet<string>();
         static HashSet<string> meteredApps = new HashSet<string>();
         static string lastDevices = "";
         static string lastApps = "";
@@ -331,6 +334,11 @@ namespace SacAudio
                 who[1] = p.ProcessName;
                 var description = p.MainModule.FileVersionInfo.FileDescription;
                 if (!string.IsNullOrWhiteSpace(description)) who[1] = description.Trim();
+                if (iconsSent.Add(who[0]))
+                {
+                    var png = Icons.Png(p.MainModule.FileName);
+                    if (png != null) Emit("{\"t\":\"appicon\",\"app\":" + Quote(who[0]) + ",\"png\":\"" + png[0] + "\",\"grey\":\"" + png[1] + "\"}");
+                }
             }
             catch
             {

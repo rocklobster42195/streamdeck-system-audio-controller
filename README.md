@@ -49,9 +49,15 @@ One app's volume, like in the Windows volume mixer: Spotify, Firefox, Discord, a
 | Push / tap | Mute / unmute the app |
 
 - The app's volume is relative to the output volume: 100 % means "as loud as the output".
-- The display has the same four looks as the Output dial; the meter shows only this app's sound.
-- While the app is closed, the dial says so and waits. It picks the app up again when it plays.
+- The display has the same four looks as the Output dial, with the app's icon next to its name (in the ring for Ring and Pie); the meter shows only this app's sound.
+- While the app is closed, the dial turns **grey** with its icon and last volume, and waits. It comes back when the app plays again.
 - Apps with several audio streams (browsers) are changed together.
+
+### App Mute *(key)*
+
+Mute one app with a key: the app's icon large with its name, and a small level while it plays (can be turned off). Press to mute or unmute. While muted, the key is **red**; while the app is closed, it is **grey**.
+
+SA-C takes the icons from the programs themselves and keeps a copy, so a key shows the right icon even while its app is closed.
 
 ### Microphone *(key)*
 
@@ -92,7 +98,7 @@ deckbus stays on your computer. It uses local pipes, plugins must know a key sto
 
 ## How it works
 
-Node.js, which Stream Deck plugins run on, can't reach the Windows audio system by itself. SA-C therefore starts a small helper once: a PowerShell script (`helper/sac-audio.ps1`) that compiles two short C# files (`helper/Interop.cs`, `helper/Helper.cs`) for Windows Core Audio. Both are plain text in the plugin folder, so you can read exactly what they do. There is no program to install and nothing that runs when Stream Deck is closed.
+Node.js, which Stream Deck plugins run on, can't reach the Windows audio system by itself. SA-C therefore starts a small helper once: a PowerShell script (`helper/sac-audio.ps1`) that compiles three short C# files (`helper/Interop.cs`, `helper/Icons.cs`, `helper/Helper.cs`) for Windows Core Audio. Both are plain text in the plugin folder, so you can read exactly what they do. There is no program to install and nothing that runs when Stream Deck is closed.
 
 - The helper reads and sets the volume and mute of the default output and input device and of each app, and reads their levels (about 20 times per second, only while needed).
 - Switching the default device uses the same Windows interface as the Windows sound settings (`IPolicyConfig`, not officially documented, but stable since Windows 7).
@@ -120,6 +126,7 @@ npm run build        # plugin bundle and PI
 npm run check        # build, tests, lint, manifest validation
 npm run icons        # action and plugin icons
 npm run sim:output   # all actions against a fake system audio, deckbus checks → sim-out/output/
+npm run sim:apps     # App dials and keys with icons; an app closes and turns grey → sim-out/apps/
 npm run link -w sac-plugin   # install the dev build into Stream Deck
 ```
 

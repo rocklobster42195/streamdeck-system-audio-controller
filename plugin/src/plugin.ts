@@ -1,6 +1,7 @@
 import streamDeck from "@elgato/streamdeck";
 import { setKitLogger } from "@rocklobster42195/streamdeck-kit";
 import { AppDial } from "./actions/app-dial";
+import { AppKey } from "./actions/app-key";
 import { DeviceKey } from "./actions/device-key";
 import { MicKey } from "./actions/mic-key";
 import { OutputDial } from "./actions/output-dial";
@@ -13,6 +14,7 @@ setKitLogger(streamDeck.logger);
 
 streamDeck.actions.registerAction(new OutputDial());
 streamDeck.actions.registerAction(new AppDial());
+streamDeck.actions.registerAction(new AppKey());
 streamDeck.actions.registerAction(new MicKey());
 streamDeck.actions.registerAction(new DeviceKey());
 initPiBridge();

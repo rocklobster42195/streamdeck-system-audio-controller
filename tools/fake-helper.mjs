@@ -2,6 +2,12 @@
 // mic, two apps with sound, invented music on the meters. The simulator runs the plugin with
 // SAC_HELPER=<this file>; nothing touches the real system audio.
 import readline from "node:readline";
+import { createRequire } from "node:module";
+
+// Invented app icons: a coloured disc with a letter (colour and greyed out, like the real helper)
+const sharp = createRequire(import.meta.url)("sharp");
+const disc = (color, letter) => `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><circle cx="64" cy="64" r="60" fill="${color}"/><text x="64" y="86" font-family="Arial" font-size="64" font-weight="bold" fill="#fff" text-anchor="middle">${letter}</text></svg>`;
+const png = async (svg) => (await sharp(Buffer.from(svg)).png().toBuffer()).toString("base64");
 
 const out = (msg) => process.stdout.write(`${JSON.stringify(msg)}\n`);
 const devices = [
@@ -40,6 +46,18 @@ out({ t: "device", flow: "in", id: "{sim-mic}", name: "Microphone (Sim USB)" });
 sendVolume("out");
 sendVolume("in");
 out({ t: "apps", list: apps });
+for (const [app, color] of [["spotify", "#59A028"], ["firefox", "#F7A600"]]) {
+    const letter = app[0].toUpperCase();
+    out({ t: "appicon", app, png: await png(disc(color, letter)), grey: await png(disc("#8a8a90", letter).replace("<circle", '<circle opacity="0.55"')) });
+}
+// SAC_FAKE_QUIT=firefox: that app closes after 4 s (to see a dial or key greyed out)
+if (process.env.SAC_FAKE_QUIT) {
+    setTimeout(() => {
+        const i = apps.findIndex((a) => a.app === process.env.SAC_FAKE_QUIT);
+        if (i >= 0) apps.splice(i, 1);
+        out({ t: "apps", list: apps });
+    }, 4000);
+}
 
 readline
     .createInterface({ input: process.stdin })

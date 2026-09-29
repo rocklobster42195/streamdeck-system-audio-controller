@@ -17,6 +17,7 @@ export type HelperMessage =
     | { t: "devices"; list: OutputDevice[] }
     | { t: "apps"; list: AppInfo[] }
     | { t: "appmeter"; app: string; l: number; r: number }
+    | { t: "appicon"; app: string; png: string; grey: string }
     | { t: "error"; message: string };
 
 export type HelperCommand =

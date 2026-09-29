@@ -1,7 +1,7 @@
 // SA-C's keys (144×144): the Mic key (red and crossed out when muted, a small level otherwise) and
 // the Device key (the output device with a fitting icon, framed while it is the default).
 import { escapeXml, meterBar, wrap } from "@rocklobster42195/streamdeck-kit";
-import { mdiAlertCircleOutline, mdiHeadphones, mdiMicrophone, mdiMicrophoneOff, mdiMonitorSpeaker, mdiSpeaker, mdiSpeakerMultiple } from "@mdi/js";
+import { mdiAlertCircleOutline, mdiApplicationOutline, mdiVolumeOff, mdiHeadphones, mdiMicrophone, mdiMicrophoneOff, mdiMonitorSpeaker, mdiSpeaker, mdiSpeakerMultiple } from "@mdi/js";
 import { ACCENT } from "./output-strip";
 
 const SIZE = 144;
@@ -51,6 +51,37 @@ export function renderDeviceKey(v: DeviceKeyView): string {
         icon(deviceIcon(v.name), 44, lines.length > 1 ? 16 : 24, 56, v.active ? ACCENT : "#6a6a70"),
         ...lines.map((l, i) => `<text x="${SIZE / 2}" y="${(lines.length > 1 ? 96 : 108) + i * 21}" ${font} font-size="18" font-weight="${v.active ? 700 : 400}" fill="${ink}" text-anchor="middle">${escapeXml(l)}</text>`),
     ];
+    return svgUri(parts);
+}
+
+export type AppKeyView = {
+    name: string;
+    /** Colour icon (the greyed-out one while inactive), data URI. */
+    icon?: string;
+    muted: boolean;
+    inactive: boolean;
+    mutedLabel: string;
+    levels?: number[];
+    peaks?: number[];
+};
+
+/** An app: its icon large, the name below. Muted: red with the label; not running: grey. */
+export function renderAppKey(v: AppKeyView): string {
+    const muted = v.muted && !v.inactive;
+    const parts = [`<rect width="${SIZE}" height="${SIZE}" fill="${muted ? MUTE_RED : "#101010"}"/>`];
+    const size = v.levels?.length || muted ? 64 : 72;
+    const x = (SIZE - size) / 2;
+    if (v.icon) parts.push(`<image href="${v.icon}" x="${x}" y="12" width="${size}" height="${size}"/>`);
+    else parts.push(icon(mdiApplicationOutline, x, 12, size, v.inactive ? "#5a5a60" : "#e0e0e0"));
+    if (muted) {
+        parts.push(icon(mdiVolumeOff, SIZE - 44, 8, 34, "#FFFFFF"));
+        parts.push(`<text x="${SIZE / 2}" y="122" ${font} font-size="20" font-weight="700" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">${escapeXml(v.mutedLabel)}</text>`);
+        return svgUri(parts);
+    }
+    const name = wrap(v.name, SIZE - 16, 17, 1)[0] ?? "";
+    const showLevel = !!v.levels?.length && !v.inactive;
+    parts.push(`<text x="${SIZE / 2}" y="${showLevel ? 104 : 116}" ${font} font-size="17" font-weight="600" fill="${v.inactive ? "#8a8a90" : "#FFFFFF"}" text-anchor="middle">${escapeXml(name)}</text>`);
+    if (showLevel) parts.push(...meterBar({ x: 16, y: 116, length: SIZE - 32, thickness: 12, levels: [Math.max(...v.levels!)], peaks: v.peaks?.length ? [Math.max(...v.peaks)] : undefined, segments: 20 }));
     return svgUri(parts);
 }
 

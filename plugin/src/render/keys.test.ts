@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { mdiHeadphones, mdiMonitorSpeaker, mdiSpeaker } from "@mdi/js";
 import { nextDevice, shownDevice } from "../audio/device-choice";
-import { deviceIcon, renderDeviceKey, renderMicKey } from "./keys";
+import { deviceIcon, renderAppKey, renderDeviceKey, renderMicKey } from "./keys";
 
 const svg = (url: string) => Buffer.from(url.slice(url.indexOf(",") + 1), "base64").toString("utf8");
 
@@ -32,5 +32,16 @@ describe("Device key", () => {
         expect(shownDevice(two, "b")?.name).toBe("B");
         expect(shownDevice(two, "other")?.name).toBe("A");
         expect(shownDevice({}, "a")).toBeUndefined();
+    });
+});
+
+describe("App key", () => {
+    const icon = "data:image/png;base64,AAAA";
+    it("shows the icon and name, red with the label when muted, grey when not running", () => {
+        expect(svg(renderAppKey({ name: "Spotify", icon, muted: false, inactive: false, mutedLabel: "MUTED" }))).toContain('href="data:image/png');
+        expect(svg(renderAppKey({ name: "Spotify", icon, muted: true, inactive: false, mutedLabel: "MUTED" }))).toContain("MUTED");
+        const closed = svg(renderAppKey({ name: "Firefox", icon, muted: true, inactive: true, mutedLabel: "MUTED" }));
+        expect(closed).not.toContain("MUTED");
+        expect(closed).toContain("#8a8a90");
     });
 });

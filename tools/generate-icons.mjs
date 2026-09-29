@@ -13,6 +13,7 @@ const root = "plugin/de.boriskemper.system-audio-controller.sdPlugin/imgs";
 const actions = {
     "output-dial": mdi.mdiVolumeHigh,
     "app-dial": mdi.mdiApplicationOutline,
+    "app-key": mdi.mdiApplicationCogOutline,
     "mic-key": mdi.mdiMicrophone,
     "device-key": mdi.mdiHeadphones,
 };

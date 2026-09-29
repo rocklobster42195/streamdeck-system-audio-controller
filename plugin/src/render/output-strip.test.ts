@@ -13,6 +13,13 @@ describe("renderOutputStrip", () => {
             expect(svg(renderOutputStrip({ ...view, style, muted: true }))).toContain("MUTE");
         });
     }
+    it("draws an app that isn't running greyed out, with its icon and last volume", () => {
+        const s = svg(renderOutputStrip({ ...view, style: "digital", inactive: true, icon: "data:image/png;base64,AAAA" }));
+        expect(s).toContain("42 %");
+        expect(s).toContain('href="data:image/png');
+        expect(s).not.toContain("#E14190");
+        expect(svg(renderOutputStrip({ ...view, style: "ring", inactive: true, volume: undefined }))).toContain("–");
+    });
     it("draws the not-ready messages", () => {
         expect(svg(renderOutputMessage("unsupported", "Windows only", "later"))).toContain("Windows only");
     });

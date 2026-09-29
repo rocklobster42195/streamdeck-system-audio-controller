@@ -4,6 +4,7 @@
 // on deckbus), per source: "out", "in" or "app:<key>".
 import streamDeck from "@elgato/streamdeck";
 import { LatestSender } from "@rocklobster42195/streamdeck-kit";
+import { saveAppIcon } from "./app-icons";
 import { AudioHelper, type AppInfo, type Flow, type HelperMessage, type OutputDevice } from "./helper";
 
 export type { AppInfo, Flow, OutputDevice };
@@ -20,6 +21,8 @@ class SystemAudio {
     readonly endpoints: Record<Flow, Endpoint> = { out: { device: undefined, volume: 0, muted: false }, in: { device: undefined, volume: 0, muted: false } };
     devices: OutputDevice[] = [];
     apps: AppInfo[] = [];
+    /** Every app seen since the plugin started, with its last state (for a dial or key while it is closed). */
+    private readonly seen = new Map<string, AppInfo>();
 
     private helper: AudioHelper | undefined;
     private readonly listeners = new Set<() => void>();
@@ -56,6 +59,11 @@ class SystemAudio {
 
     app(key: string | undefined): AppInfo | undefined {
         return key ? this.apps.find((a) => a.app === key) : undefined;
+    }
+
+    /** The app's last known state, also after it closed (undefined if not seen since the start). */
+    lastSeen(key: string | undefined): AppInfo | undefined {
+        return key ? this.seen.get(key) : undefined;
     }
 
     onChange(fn: () => void): () => void {
@@ -171,6 +179,10 @@ class SystemAudio {
             case "apps":
                 // Keep the optimistic values of apps changed just now
                 this.apps = msg.list.map((a) => (this.isHeld(`app:${a.app}`) ? { ...a, v: this.app(a.app)?.v ?? a.v, muted: this.app(a.app)?.muted ?? a.muted } : a));
+                for (const a of this.apps) this.seen.set(a.app, a);
+                break;
+            case "appicon":
+                saveAppIcon(msg.app, msg.png, msg.grey);
                 break;
             case "meter":
                 this.meterIn(msg.flow, msg);

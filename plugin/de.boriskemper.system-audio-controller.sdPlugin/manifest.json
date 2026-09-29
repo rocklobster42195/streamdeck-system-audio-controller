@@ -71,6 +71,21 @@
             ]
         },
         {
+            "Name": "App Mute",
+            "UUID": "de.boriskemper.system-audio-controller.app-key",
+            "Icon": "imgs/actions/app-key/icon",
+            "Tooltip": "Mute one app (Spotify, Discord, …) with a key that shows its icon.",
+            "PropertyInspectorPath": "ui/app-key.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/app-key/key"
+                }
+            ]
+        },
+        {
             "Name": "Microphone",
             "UUID": "de.boriskemper.system-audio-controller.mic-key",
             "Icon": "imgs/actions/mic-key/icon",
