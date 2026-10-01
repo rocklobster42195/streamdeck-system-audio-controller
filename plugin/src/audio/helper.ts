@@ -12,7 +12,7 @@ export type AppInfo = { app: string; name: string; v: number; muted: boolean; ac
 export type HelperMessage =
     | { t: "ready" }
     | { t: "device"; flow: Flow; id: string; name: string }
-    | { t: "volume"; flow: Flow; v: number; muted: boolean }
+    | { t: "volume"; flow: Flow; v: number; db?: number; muted: boolean }
     | { t: "meter"; flow: Flow; l: number; r: number }
     | { t: "devices"; list: OutputDevice[] }
     | { t: "apps"; list: AppInfo[] }
@@ -22,6 +22,7 @@ export type HelperMessage =
 
 export type HelperCommand =
     | { cmd: "volume"; flow: Flow; v: number }
+    | { cmd: "volumedb"; flow: Flow; db: number }
     | { cmd: "mute"; flow: Flow; on: boolean }
     | { cmd: "meters"; flow: Flow; on: boolean }
     | { cmd: "default"; id: string }

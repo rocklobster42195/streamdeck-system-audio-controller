@@ -79,6 +79,11 @@ namespace SacAudio
         int GetChannelVolumeLevelScalar(uint channel, out float level);
         int SetMute([MarshalAs(UnmanagedType.Bool)] bool mute, ref Guid context);
         int GetMute([MarshalAs(UnmanagedType.Bool)] out bool mute);
+        int GetVolumeStepInfo(out uint step, out uint count);
+        int VolumeStepUp(ref Guid context);
+        int VolumeStepDown(ref Guid context);
+        int QueryHardwareSupport(out uint mask);
+        int GetVolumeRange(out float minDb, out float maxDb, out float incrementDb);
     }
 
     [Guid("C02216F6-8C67-4B5B-9D00-D008E73E0064"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

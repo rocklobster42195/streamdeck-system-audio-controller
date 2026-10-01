@@ -12,4 +12,5 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 - **Microphone** key: mutes the default mic, clearly red while muted; otherwise a small level (while an app records).
 - **Output Device** key: makes a device the default, or switches between two (e.g. headphones and speakers); icon from the name, framed while active.
 - A small helper for Windows Core Audio (PowerShell with a C# file, readable in the plugin folder), started once and restarted if it stops.
+- **Ducking** for other plugins on deckbus, only those you allow (settings: "Other plugins", off by default): they may lower the output device (in real dB) or one app for a while; SA-C restores the exact volume afterwards, also when the plugin leaves or loses its permission. A volume you set in the meantime stays.
 - **deckbus:** SA-C tells other plugins whether the system audio is available and offers levels (output `meters/system-output`, mic `meters/system-input`, every app `meters/app-<name>`), each sent only while another plugin uses it (e.g. MA-C's Panorama); shares the mic's muted state (`mic`) and where its actions are (`actions`).

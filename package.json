@@ -16,7 +16,8 @@
         "icons": "node tools/generate-icons.mjs",
         "check": "npm run build && npm test && npm run lint && npm run validate -w sac-plugin",
         "sim:output": "node tools/sd-sim/output.mjs sim-out",
-        "sim:apps": "node tools/sd-sim/apps.mjs sim-out"
+        "sim:apps": "node tools/sd-sim/apps.mjs sim-out",
+        "sim:duck": "node tools/sd-sim/duck.mjs sim-out"
     },
     "devDependencies": {
         "@tsconfig/node24": "^24.0.5",

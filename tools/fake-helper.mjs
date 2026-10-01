@@ -1,6 +1,7 @@
 // A stand-in for helper/sac-audio.ps1 (same JSON lines, see Helper.cs): two output devices, a
 // mic, two apps with sound, invented music on the meters. The simulator runs the plugin with
 // SAC_HELPER=<this file>; nothing touches the real system audio.
+import fs from "node:fs";
 import readline from "node:readline";
 import { createRequire } from "node:module";
 
@@ -38,7 +39,10 @@ const sendDevice = () => {
     out({ t: "device", flow: "out", id: d.id, name: d.name });
     out({ t: "devices", list: devices.map((x) => ({ ...x, default: x.id === defaultId })) });
 };
-const sendVolume = (flow) => out({ t: "volume", flow, v: ends[flow].v, muted: ends[flow].muted });
+// A device volume curve like many Windows drivers: 50 % ≈ -10 dB, 0 % = -65.25 dB
+const CURVE = 33.22;
+const levelDb = (v) => (v > 0.0001 ? Math.max(-65.25, CURVE * Math.log10(v)) : -65.25);
+const sendVolume = (flow) => out({ t: "volume", flow, v: ends[flow].v, db: Math.round(levelDb(ends[flow].v) * 10) / 10, muted: ends[flow].muted });
 
 out({ t: "ready" });
 sendDevice();
@@ -59,10 +63,15 @@ if (process.env.SAC_FAKE_QUIT) {
     }, 4000);
 }
 
+// SAC_FAKE_STATE=<file>: the volumes after every command, for the simulator's checks
+const dumpState = () => process.env.SAC_FAKE_STATE && fs.writeFileSync(process.env.SAC_FAKE_STATE, JSON.stringify({ out: ends.out, apps }));
+dumpState();
+
 readline
     .createInterface({ input: process.stdin })
     .on("line", (line) => {
         const cmd = JSON.parse(line);
+        setImmediate(dumpState);
         const flow = cmd.flow === "in" ? "in" : "out";
         switch (cmd.cmd) {
             case "quit":
@@ -70,6 +79,10 @@ readline
                 break;
             case "volume":
                 ends[flow].v = cmd.v;
+                sendVolume(flow);
+                break;
+            case "volumedb":
+                ends[flow].v = Math.round(Math.min(1, 10 ** (Math.min(0, cmd.db) / CURVE)) * 1000) / 1000;
                 sendVolume(flow);
                 break;
             case "mute":

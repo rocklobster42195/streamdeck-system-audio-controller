@@ -47,7 +47,11 @@
 			"choose_device": "Choose a device",
 			"no_devices": "No output devices found.",
 			"device_help": "Press: make this device the default. With a second device, a press switches between the two.",
-			"app_key_help": "Press: mute or unmute the app. The key shows the app's icon; red while muted, grey while the app isn't running."
+			"app_key_help": "Press: mute or unmute the app. The key shows the app's icon; red while muted, grey while the app isn't running.",
+			"duck": "Other plugins",
+			"duck_none": "No other plugin on deckbus right now.",
+			"duck_away": "Not running right now",
+			"duck_hint": "Plugins switched on here may lower your computer's volume for a moment, e.g. MA-C during an announcement. SA-C puts the volume back afterwards; if you change it in the meantime, yours stays."
 		},
 		"App": "App",
 		"One app's volume on a dial (Spotify, Firefox, …), with its level.": "One app's volume on a dial (Spotify, Firefox, …), with its level.",

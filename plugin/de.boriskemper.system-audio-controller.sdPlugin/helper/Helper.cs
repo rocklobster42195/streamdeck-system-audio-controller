@@ -5,7 +5,7 @@
 // Out (one JSON object per line; "flow" is "out" or "in"):
 //   {"t":"ready"}
 //   {"t":"device","flow":"out","id":"…","name":"Speakers (Realtek)"}   default device (again on change)
-//   {"t":"volume","flow":"out","v":0.42,"muted":false}                  on start and on every change
+//   {"t":"volume","flow":"out","v":0.42,"db":-18.3,"muted":false}       on start and on every change (db: the device's level in dB)
 //   {"t":"meter","flow":"out","l":-23.5,"r":-24.1}                      peak dBFS, ~20/s, while metering is on
 //   {"t":"devices","list":[{"id":"…","name":"…","default":true}]}       active output devices, on change
 //   {"t":"apps","list":[{"app":"spotify","name":"Spotify","v":1,"muted":false,"active":true}]}   on change
@@ -13,7 +13,7 @@
 //   {"t":"appicon","app":"spotify","png":"<base64>","grey":"<base64>"}    once per app: its icon, 128×128, and greyed
 //   {"t":"error","message":"…"}
 // In:
-//   {"cmd":"volume","flow":"out","v":0.5}   {"cmd":"mute","flow":"in","on":true}   {"cmd":"meters","flow":"out","on":true}
+//   {"cmd":"volume","flow":"out","v":0.5}   {"cmd":"volumedb","flow":"out","db":-30}   {"cmd":"mute","flow":"in","on":true}   {"cmd":"meters","flow":"out","on":true}
 //   {"cmd":"default","id":"…"}   {"cmd":"appvolume","app":"spotify","v":0.8}   {"cmd":"appmute","app":"spotify","on":true}
 //   {"cmd":"appmeters","apps":"spotify,firefox"}   {"cmd":"quit"}
 using System;
@@ -75,13 +75,24 @@ namespace SacAudio
         public void PollVolume()
         {
             if (Volume == null) return;
-            float v;
+            float v, db;
             bool muted;
             if (Volume.GetMasterVolumeLevelScalar(out v) != 0 || Volume.GetMute(out muted) != 0) return;
             if (Math.Abs(v - lastVolume) < 0.0005 && muted == lastMuted) return;
             lastVolume = v;
             lastMuted = muted;
-            Helper.Emit("{\"t\":\"volume\",\"flow\":\"" + Tag + "\",\"v\":" + Helper.Num(v) + ",\"muted\":" + Helper.Bool(muted) + "}");
+            var level = Volume.GetMasterVolumeLevel(out db) == 0 ? ",\"db\":" + Helper.Num(db) : "";
+            Helper.Emit("{\"t\":\"volume\",\"flow\":\"" + Tag + "\",\"v\":" + Helper.Num(v) + level + ",\"muted\":" + Helper.Bool(muted) + "}");
+        }
+
+        /** Set the level in dB (for ducking: a real -12 dB, whatever the device's volume curve), within the device's range. */
+        public void SetDb(float db)
+        {
+            if (Volume == null) return;
+            float min, max, inc;
+            if (Volume.GetVolumeRange(out min, out max, out inc) == 0) db = Math.Max(min, Math.Min(max, db));
+            var ctx = Guid.Empty;
+            Volume.SetMasterVolumeLevel(db, ref ctx);
         }
 
         public void PollMeter()
@@ -183,6 +194,10 @@ namespace SacAudio
                 {
                     case "volume":
                         if (ep.Volume != null) ep.Volume.SetMasterVolumeLevelScalar(Level(Field(json, "v")), ref ctx);
+                        break;
+                    case "volumedb":
+                        float db;
+                        if (float.TryParse(Field(json, "db"), NumberStyles.Float, CultureInfo.InvariantCulture, out db)) ep.SetDb(db);
                         break;
                     case "mute":
                         if (ep.Volume != null) ep.Volume.SetMute(Field(json, "on") == "true", ref ctx);

@@ -2,10 +2,13 @@
 // system audio is available and whether the mic is muted, and offers levels: the computer's output
 // ("meters/system-output"), the mic ("meters/system-input") and each app with sound
 // ("meters/app-spotify", …). A level is measured and sent only while some peer subscribes.
+// Plugins the user allowed may lower the output or an app for a while ("duck", see ducking.ts).
 import streamDeck from "@elgato/streamdeck";
 import { trackActions } from "@rocklobster42195/streamdeck-kit/bridge";
-import { ActionsState, DeckBus } from "@rocklobster42195/streamdeck-kit/bus";
+import { ActionsState, DeckBus, serveDucking } from "@rocklobster42195/streamdeck-kit/bus";
+import { Ducker, type DuckTarget } from "../audio/ducking";
 import { systemAudio, type MeterSource } from "../audio/system-audio";
+import { isDuckAllowed, onDuckRevoked, setDuckPeers } from "./duck-permissions";
 
 type Offer = { topic: string; label: string; stereo: boolean; source: MeterSource };
 
@@ -22,6 +25,11 @@ export function trackSacActions(): void {
     trackActions(actions);
 }
 
+/** Ducking works on the topics of the output and the apps (not the mic). */
+const ducker = new Ducker(systemAudio, (topic) => (topic === "meters/system-output" ? "out" : topic.startsWith("meters/app-") ? (`app:${topic.slice(11)}` as DuckTarget) : undefined), (m) =>
+    streamDeck.logger.info(m),
+);
+
 /** The bus topic of a level source. */
 export function topicOf(source: MeterSource): string {
     return source === "out" ? "meters/system-output" : source === "in" ? "meters/system-input" : `meters/app-${source.slice(4)}`;
@@ -29,12 +37,17 @@ export function topicOf(source: MeterSource): string {
 
 /** Call after streamDeck.connect() (the plugin version comes from there). */
 export async function startSacBus(): Promise<void> {
-    bus = new DeckBus({ id: "de.boriskemper.system-audio-controller", name: "SA-C", version: streamDeck.info.plugin.version, caps: ["meters"] });
+    bus = new DeckBus({ id: "de.boriskemper.system-audio-controller", name: "SA-C", version: streamDeck.info.plugin.version, caps: ["meters", "duck"] });
     bus.setState("actions", actions.list());
     if (!(await bus.start())) return;
     streamDeck.logger.info(`[deckbus] SA-C in slot ${bus.slot}`);
     systemAudio.onChange(share);
     share();
+    serveDucking(bus, ducker.leases, { allow: (peer) => isDuckAllowed(peer.id), has: (topic) => ducker.has(topic) });
+    systemAudio.onChange(() => ducker.check());
+    systemAudio.onUserVolume((target) => ducker.userChanged(target));
+    onDuckRevoked((id) => ducker.leases.leave(id));
+    bus.onPeers(setDuckPeers);
     systemAudio.onMeter((source, m) => {
         const offer = offers.find((o) => o.source === source);
         if (offer) bus?.publish(offer.topic, { l: m.l, r: m.r });

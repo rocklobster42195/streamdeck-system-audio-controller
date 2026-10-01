@@ -28,7 +28,7 @@ A Stream Deck plugin for the computer's own audio: the volume of output and inpu
 4. **deckbus:**
    - state `status`, `streams`, and the mic's muted state;
    - meters only while someone subscribes;
-   - `duck`/`unduck`, allowed per peer;
+   - `duck`/`unduck`, allowed per peer (done 2026-10-01: output in dB, apps by factor, "the user wins");
    - the README section "Works with other plugins (deckbus)".
 
 **Later:**

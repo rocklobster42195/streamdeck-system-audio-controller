@@ -92,7 +92,11 @@ SA-C talks to other Stream Deck plugins on your computer through **deckbus**, a 
 
 **Uses:** nothing yet.
 
-**Only with your permission:** nothing yet. Later, other plugins may ask SA-C to lower the volume for a moment (for example MA-C during an announcement). That will need your OK per plugin, and SA-C will always put the volume back.
+**Only with your permission:** lowering the volume for a moment (*ducking*), e.g. MA-C during an announcement. Nobody may by default. Switch it on per plugin in the settings of an Output dial, App dial or App Mute key, under **Other plugins** (the list shows the plugins on deckbus right now).
+
+- A plugin can lower your output device or one app (by a few dB, for at most a few minutes).
+- Afterwards SA-C puts back exactly the volume from before, also when that plugin stops or you switch its permission off.
+- You win: if you change the volume during a duck (on the deck or in Windows), it stays as you set it.
 
 deckbus stays on your computer. It uses local pipes, plugins must know a key stored in your user profile, and nothing goes over the network. The protocol is open: [deckbus protocol](https://github.com/rocklobster42195/streamdeck-kit/blob/main/docs/deckbus-protocol.md).
 
@@ -115,7 +119,6 @@ Node.js, which Stream Deck plugins run on, can't reach the Windows audio system 
 
 ## Planned
 
-- Lowering the volume for other plugins, with your permission (see above).
 - macOS.
 
 ## Development
@@ -127,6 +130,7 @@ npm run check        # build, tests, lint, manifest validation
 npm run icons        # action and plugin icons
 npm run sim:output   # all actions against a fake system audio, deckbus checks → sim-out/output/
 npm run sim:apps     # App dials and keys with icons; an app closes and turns grey → sim-out/apps/
+npm run sim:duck     # another plugin ducks the output and an app: permission, restore, "you win" → sim-out/duck/
 npm run link -w sac-plugin   # install the dev build into Stream Deck
 ```
 

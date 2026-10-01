@@ -11,7 +11,7 @@ export type { AppInfo, Flow, OutputDevice };
 export type AudioState = "unsupported" | "starting" | "ready" | "failed";
 export type Meter = { l: number; r: number };
 export type MeterSource = Flow | `app:${string}`;
-export type Endpoint = { device: { id: string; name: string } | undefined; volume: number; muted: boolean };
+export type Endpoint = { device: { id: string; name: string } | undefined; volume: number; muted: boolean; /** The level in dB, if the device reports it. */ db?: number };
 
 /** After an own change, the helper's echoes of older values are ignored for this long. */
 const HOLD_MS = 400;
@@ -26,6 +26,8 @@ class SystemAudio {
 
     private helper: AudioHelper | undefined;
     private readonly listeners = new Set<() => void>();
+    /** Told when the user sets a volume on the deck (target "out", "in" or "app:<key>"). */
+    private readonly userVolumeListeners = new Set<(target: string) => void>();
     private readonly meterListeners = new Set<(source: MeterSource, m: Meter) => void>();
     /** Per source: who wants its level, and the latest one. */
     private readonly owners = new Map<MeterSource, Set<string>>();
@@ -71,6 +73,11 @@ class SystemAudio {
         return () => this.listeners.delete(fn);
     }
 
+    onUserVolume(fn: (target: string) => void): () => void {
+        this.userVolumeListeners.add(fn);
+        return () => this.userVolumeListeners.delete(fn);
+    }
+
     onMeter(fn: (source: MeterSource, m: Meter) => void): () => void {
         this.meterListeners.add(fn);
         return () => this.meterListeners.delete(fn);
@@ -96,6 +103,7 @@ class SystemAudio {
     setVolume(flow: Flow, v: number): void {
         const e = this.endpoints[flow];
         e.volume = clamp(v);
+        for (const fn of this.userVolumeListeners) fn(flow);
         this.hold(flow);
         this.sender(flow, (value) => this.helper?.send({ cmd: "volume", flow, v: value })).push(e.volume);
         this.notify();
@@ -112,6 +120,7 @@ class SystemAudio {
         const app = this.app(key);
         if (!app) return;
         app.v = clamp(v);
+        for (const fn of this.userVolumeListeners) fn(`app:${key}`);
         this.hold(`app:${key}`);
         this.sender(`app:${key}`, (value) => this.helper?.send({ cmd: "appvolume", app: key, v: value })).push(app.v);
         this.notify();
@@ -124,6 +133,20 @@ class SystemAudio {
         this.hold(`app:${key}`);
         this.helper?.send({ cmd: "appmute", app: key, on });
         this.notify();
+    }
+
+    // Ducking (see ducking.ts): sent as they are, no optimistic values; the helper reports the result
+
+    duckDb(flow: Flow, db: number): void {
+        this.helper?.send({ cmd: "volumedb", flow, db: Math.round(db * 10) / 10 });
+    }
+
+    duckVolume(flow: Flow, v: number): void {
+        this.helper?.send({ cmd: "volume", flow, v: clamp(v) });
+    }
+
+    duckAppVolume(key: string, v: number): void {
+        this.helper?.send({ cmd: "appvolume", app: key, v: Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000 });
     }
 
     /** Make `id` the default output device (for all uses: console, multimedia, communications). */
@@ -170,6 +193,7 @@ class SystemAudio {
             case "volume":
                 if (this.isHeld(msg.flow)) return;
                 this.endpoints[msg.flow].volume = msg.v;
+                this.endpoints[msg.flow].db = msg.db;
                 this.endpoints[msg.flow].muted = msg.muted;
                 break;
             case "devices":

@@ -47,7 +47,11 @@
 			"choose_device": "Gerät wählen",
 			"no_devices": "Keine Ausgabegeräte gefunden.",
 			"device_help": "Drücken: macht dieses Gerät zum Standard. Mit einem zweiten Gerät wechselt ein Druck zwischen beiden.",
-			"app_key_help": "Drücken: App stumm oder wieder an. Die Taste zeigt das Icon der App; rot, solange sie stumm ist, grau, solange sie nicht läuft."
+			"app_key_help": "Drücken: App stumm oder wieder an. Die Taste zeigt das Icon der App; rot, solange sie stumm ist, grau, solange sie nicht läuft.",
+			"duck": "Andere Plugins",
+			"duck_none": "Gerade ist kein anderes Plugin auf deckbus.",
+			"duck_away": "Läuft gerade nicht",
+			"duck_hint": "Hier eingeschaltete Plugins dürfen die Lautstärke deines Computers kurz absenken, z. B. MA-C während einer Durchsage. SA-C stellt sie danach wieder her; änderst du sie in der Zwischenzeit, bleibt deine."
 		},
 		"App": "App",
 		"One app's volume on a dial (Spotify, Firefox, …), with its level.": "Die Lautstärke einer App auf einem Dial (Spotify, Firefox, …), mit ihrem Pegel.",
