@@ -67,6 +67,8 @@ try {
     await sim.snapshot(out, "4-apps-mic-devices");
     const topics = simSac().state.streams.map((s) => s.topic);
     check("apps and the mic are offered as streams", ["meters/system-input", "meters/app-spotify", "meters/app-firefox"].every((t) => topics.includes(t)), topics.join(", "));
+    const micStream = simSac().state.streams.find((s) => s.topic === "meters/system-input");
+    check("the mic is marked as an input, the output is not", micStream?.input === true && !simSac().state.streams.find((s) => s.topic === "meters/system-output")?.input, JSON.stringify(micStream));
 
     sim.rotate(spotify, -10);
     sim.press(mic);

@@ -87,8 +87,8 @@ SA-C talks to other Stream Deck plugins on your computer through **deckbus**, a 
 - whether the mic is muted (`mic`), so other plugins could show it;
 - levels, each sent only while another plugin actually uses it:
   - your computer's output as `meters/system-output` (e.g. MA-C's Panorama with **Audio source** set to your output device);
-  - the mic as `meters/system-input`;
-  - every app with sound, e.g. `meters/app-spotify`, so MA-C's Panorama can move with Spotify only.
+  - the mic as `meters/system-input` (marked as an input, so MA-C's Panorama doesn't list it);
+  - every app with sound, e.g. `meters/app-spotify`, so MA-C's Panorama can move with Spotify only (not Windows' system sounds).
 
 **Uses:** nothing yet.
 

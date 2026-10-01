@@ -10,7 +10,7 @@ import { Ducker, type DuckTarget } from "../audio/ducking";
 import { systemAudio, type MeterSource } from "../audio/system-audio";
 import { isDuckAllowed, onDuckRevoked, setDuckPeers } from "./duck-permissions";
 
-type Offer = { topic: string; label: string; stereo: boolean; source: MeterSource };
+type Offer = { topic: string; label: string; stereo: boolean; input?: true; source: MeterSource };
 
 let bus: DeckBus | undefined;
 let offers: Offer[] = [];
@@ -61,12 +61,14 @@ function share(): void {
     const input = systemAudio.endpoints.in;
     offers = [
         ...(systemAudio.ready("out") ? [{ topic: topicOf("out"), label: out.device?.name || "System output", stereo: true, source: "out" as const }] : []),
-        ...(systemAudio.ready("in") ? [{ topic: topicOf("in"), label: input.device?.name || "Microphone", stereo: true, source: "in" as const }] : []),
-        ...(systemAudio.ready("out") ? systemAudio.apps.map((a) => ({ topic: topicOf(`app:${a.app}`), label: a.name, stereo: true, source: `app:${a.app}` as const })) : []),
+        // The mic is marked as an input: plugins that move with music (MA-C's Panorama) leave it out
+        ...(systemAudio.ready("in") ? [{ topic: topicOf("in"), label: input.device?.name || "Microphone", stereo: true, input: true as const, source: "in" as const }] : []),
+        // Windows' system sounds (beeps, notifications) are no source anyone wants to follow
+        ...(systemAudio.ready("out") ? systemAudio.apps.filter((a) => a.app !== "system").map((a) => ({ topic: topicOf(`app:${a.app}`), label: a.name, stereo: true, source: `app:${a.app}` as const })) : []),
     ];
     const status = { online: systemAudio.ready("out"), detail: systemAudio.ready("out") ? out.device?.name : systemAudio.state };
     const mic = systemAudio.ready("in") ? { muted: input.muted } : undefined;
-    const streams = offers.map(({ topic, label, stereo }) => ({ topic, label, stereo }));
+    const streams = offers.map(({ topic, label, stereo, input }) => ({ topic, label, stereo, ...(input ? { input } : {}) }));
     const json = JSON.stringify([status, mic, streams]);
     if (json !== lastState) {
         lastState = json;
