@@ -29,7 +29,7 @@ export type Target =
     | { inactive: true; name: string; volume: number | undefined; muted: boolean; icon?: string }
     | { message: "choose" | "no-device" };
 
-type Instance<S> = { action: DialAction<S>; settings: S; feed: MeterFeed; lastImage?: string };
+type Instance<S extends JsonObject> = { action: DialAction<S>; settings: S; feed: MeterFeed; lastImage?: string };
 
 export abstract class VolumeDial<S extends VolumeDialSettings> extends SingletonAction<S> {
     private readonly instances = new Map<string, Instance<S>>();
@@ -112,7 +112,7 @@ export abstract class VolumeDial<S extends VolumeDialSettings> extends Singleton
     }
 
     private image(inst: Instance<S>): string {
-        const t = (k: string, vars?: Record<string, string>) => streamDeck.i18n.t(k, vars);
+        const t = (k: string) => streamDeck.i18n.t(k);
         const state = systemAudio.state;
         if (state === "unsupported") return renderOutputMessage("unsupported", t("key.unsupported"), t("key.unsupported_hint"));
         if (state === "failed") return renderOutputMessage("failed", t("key.failed"), t("key.failed_hint"));

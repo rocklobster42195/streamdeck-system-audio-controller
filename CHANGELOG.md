@@ -5,6 +5,7 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 ## [Unreleased]
 
 ### Added
+- The Output and App dials draw with the kit's level strip (shared with XR-C); they look exactly as before.
 - **Output** dial (Windows): the default output device's volume (rotate) and mute (push or tap), with the level of what is playing in four looks: Digital, Classic (VU meters), Ring and Pie. Follows a change of the default device. Own name possible.
 - **App** dial: one app's volume (Spotify, Firefox, Discord, …) with mute, the app's icon and its own level, in the same four looks. Greyed out with its last volume while the app is closed.
 - **App Mute** key: mutes one app; its icon large, a small level, red while muted, grey while closed.
