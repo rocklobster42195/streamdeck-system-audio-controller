@@ -3,8 +3,11 @@
 // ("meters/system-output"), the mic ("meters/system-input") and each app with sound
 // ("meters/app-spotify", …). A level is measured and sent only while some peer subscribes.
 // Plugins the user allowed may lower the output or an app for a while ("duck", see ducking.ts).
+// The Panorama behind SA-C's dials is shared with the other dials of the row (one effect per row,
+// see the kit's panorama/rows.ts).
 import streamDeck from "@elgato/streamdeck";
 import { trackActions } from "@rocklobster42195/streamdeck-kit/bridge";
+import { PanoramaEngine, PanoramaRows, SharedPanorama } from "@rocklobster42195/streamdeck-kit";
 import { ActionsState, DeckBus, serveDucking } from "@rocklobster42195/streamdeck-kit/bus";
 import { Ducker, type DuckTarget } from "../audio/ducking";
 import { systemAudio, type MeterSource } from "../audio/system-audio";
@@ -19,6 +22,12 @@ let lastState = "";
 const watchers = new Map<string, { source: MeterSource; off: () => void }>();
 /** Where SA-C's actions are visible ("actions" state); collected from the start, shared once the bus exists. */
 const actions = new ActionsState({ setState: (key, value) => bus?.setState(key, value) });
+
+/** SA-C's Panorama (effects behind the dials), shared with the other plugins' dials once the bus runs. */
+export const panorama = new SharedPanorama(new PanoramaEngine({ defaultColor: "#E14190" }), actions);
+
+/** One effect per row of dials, agreed with the other plugins. */
+export const panoramaRows = new PanoramaRows(panorama, { name: "SA-C", actions });
 
 /** Call before streamDeck.connect(), so no willAppear is missed. */
 export function trackSacActions(): void {
@@ -39,6 +48,8 @@ export function topicOf(source: MeterSource): string {
 export async function startSacBus(): Promise<void> {
     bus = new DeckBus({ id: "de.boriskemper.system-audio-controller", name: "SA-C", version: streamDeck.info.plugin.version, caps: ["meters", "duck"] });
     bus.setState("actions", actions.list());
+    panorama.connect(bus);
+    panoramaRows.connect(bus);
     if (!(await bus.start())) return;
     streamDeck.logger.info(`[deckbus] SA-C in slot ${bus.slot}`);
     systemAudio.onChange(share);

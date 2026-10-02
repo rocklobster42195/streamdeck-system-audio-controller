@@ -53,6 +53,14 @@ One app's volume, like in the Windows volume mixer: Spotify, Firefox, Discord, a
 - While the app is closed, the dial turns **grey** with its icon and last volume, and waits. It comes back when the app plays again.
 - Apps with several audio streams (browsers) are changed together.
 
+### Settings of the dials
+
+The dial's settings panel stays short: what it controls and how it looks. **More settings …** opens a bigger settings window with the rest: the step per tick, **Panorama** and **Other plugins**, with a menu to jump between them.
+
+### Panorama behind the dials
+
+An effect (particles, matrix rain, Boing ball, Boing globe) can run behind the dials, across all displays of the deck like one picture, also behind the dials of other plugins of the family ([MA-C](https://github.com/rocklobster42195/streamdeck-music-assistant-controller), X-Air Controller, HA-C). In the settings window under **Panorama**, choose the effect for the whole row of dials, untick the dials that shouldn't show it (the effect runs on behind them), and set its speed or density once for the row. Only the text and the meters get a dark backing, so the effect stays visible around them.
+
 ### App Mute *(key)*
 
 Mute one app with a key: the app's icon large with its name, and a small level while it plays (can be turned off). Press to mute or unmute. While muted, the key is **red**; while the app is closed, it is **grey**.
@@ -90,9 +98,9 @@ SA-C talks to other Stream Deck plugins on your computer through **deckbus**, a 
   - the mic as `meters/system-input` (marked as an input, so MA-C's Panorama doesn't list it);
   - every app with sound, e.g. `meters/app-spotify`, so MA-C's Panorama can move with Spotify only (not Windows' system sounds).
 
-**Uses:** nothing yet.
+**Uses:** the Panorama of the other plugins' dials in the same row: one effect across all of them (state `panorama-rows`; the plugin with the leftmost dial computes it).
 
-**Only with your permission:** lowering the volume for a moment (*ducking*), e.g. MA-C during an announcement. Nobody may by default. Switch it on per plugin in the settings of an Output dial, App dial or App Mute key, under **Other plugins** (the list shows the plugins on deckbus right now).
+**Only with your permission:** lowering the volume for a moment (*ducking*), e.g. MA-C during an announcement. Nobody may by default. Switch it on per plugin under **Other plugins**: in the settings window of an Output or App dial, or in the settings of an App Mute key (the list shows the plugins on deckbus right now).
 
 - A plugin can lower your output device or one app (by a few dB, for at most a few minutes).
 - Afterwards SA-C puts back exactly the volume from before, also when that plugin stops or you switch its permission off.

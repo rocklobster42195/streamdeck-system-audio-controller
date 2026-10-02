@@ -28,14 +28,20 @@
     <pi-field setting="title" label="pi.title" placeholder="pi.title_placeholder"></pi-field>
   </pi-section>
 
-  <pi-section title="pi.dial_controls">
+  <pi-section class="pi-win" title="pi.dial_controls">
     <pi-range setting="step" min="1" max="10" step="1" default="2" unit=" %" label="pi.dial_step"></pi-range>
   </pi-section>
 
-  <pi-section title="pi.duck">
+  <pi-panorama class="pi-win"></pi-panorama>
+
+  <pi-section class="pi-win" title="pi.duck">
     <sac-duck-peers></sac-duck-peers>
   </pi-section>
-  <div class="pi-hint sac-help" data-i18n="pi.duck_hint"></div>
+  <div class="pi-hint sac-help pi-win" data-i18n="pi.duck_hint"></div>
+
+  <pi-panorama class="pi-pi-only" summary></pi-panorama>
+
+  <pi-more></pi-more>
 
   <div class="pi-footer"><span data-plugin-version>SA-C</span></div>
 </body>

@@ -1,5 +1,6 @@
 // Base for SA-C's dials (Output, App): instances, the not-ready states, the level while one is
-// shown, and a deduplicated redraw at the shared frame rate. Rotate: volume · Push or tap: mute.
+// shown, a deduplicated redraw at the shared frame rate, and the row's Panorama effect behind the
+// dial (shared with the other dials of the row, also of other plugins). Rotate: volume · Push or tap: mute.
 import streamDeck, {
     type DialAction,
     type DialRotateEvent,
@@ -9,11 +10,12 @@ import streamDeck, {
     type WillDisappearEvent,
 } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
-import { frames } from "@rocklobster42195/streamdeck-kit";
+import { frames, rowStateFromSettings } from "@rocklobster42195/streamdeck-kit";
 import { MeterFeed } from "../audio/meter-feed";
 import { stepVolume } from "../audio/steps";
 import { systemAudio, type MeterSource } from "../audio/system-audio";
 import { renderOutputMessage, renderOutputStrip, showsMeter, type OutputStyle } from "../render/output-strip";
+import { panorama, panoramaRows } from "../bus/sac-bus";
 
 export type VolumeDialSettings = {
     style?: OutputStyle;
@@ -45,20 +47,38 @@ export abstract class VolumeDial<S extends VolumeDialSettings> extends Singleton
 
     override onWillAppear(ev: WillAppearEvent<S>): void {
         if (!ev.action.isDial()) return;
-        this.instances.set(ev.action.id, { action: ev.action, settings: ev.payload.settings, feed: new MeterFeed(`${this.key}-${ev.action.id}`) });
-        this.refresh(ev.action.id);
+        const id = ev.action.id;
+        const inst: Instance<S> = { action: ev.action, settings: ev.payload.settings, feed: new MeterFeed(`${this.key}-${id}`) };
+        this.instances.set(id, inst);
+        panoramaRows.add(id, {
+            device: ev.action.device.id,
+            column: ev.action.coordinates?.column ?? 0,
+            label: () => {
+                const t = systemAudio.state === "ready" ? this.target(inst.settings) : undefined;
+                return inst.settings.title?.trim() || (t && "name" in t ? t.name : "");
+            },
+            state: () => rowStateFromSettings(inst.settings),
+            save: (patch) => {
+                inst.settings = { ...inst.settings, ...patch } as S;
+                void inst.action.setSettings(inst.settings);
+            },
+            redraw: () => this.render(inst),
+        });
+        this.refresh(id);
     }
 
     override onWillDisappear(ev: WillDisappearEvent<S>): void {
         this.instances.get(ev.action.id)?.feed.stop();
         frames.stop(`${this.key}-${ev.action.id}`);
         this.instances.delete(ev.action.id);
+        panoramaRows.remove(ev.action.id);
     }
 
     override onDidReceiveSettings(ev: DidReceiveSettingsEvent<S>): void {
         const inst = this.instances.get(ev.action.id);
         if (!inst) return;
         inst.settings = ev.payload.settings;
+        panoramaRows.changed(ev.action.id);
         this.refresh(ev.action.id);
     }
 
@@ -122,7 +142,11 @@ export abstract class VolumeDial<S extends VolumeDialSettings> extends Singleton
             if (target.message === "choose") return renderOutputMessage("choose", t("key.choose_app"), t("key.choose_app_hint"));
             return renderOutputMessage("no-device", t("key.no_device"), t("key.no_device_hint"));
         }
+        // The row's Panorama behind the dial; none on a dial that doesn't take part
+        const id = inst.action.id;
+        const background = panoramaRows.effectOf(id) && panoramaRows.isMember(id) && panorama.isActive(id) ? panorama.renderSlice(id) : undefined;
         return renderOutputStrip({
+            background,
             name: inst.settings.title?.trim() || target.name,
             volume: target.volume,
             muted: target.muted,

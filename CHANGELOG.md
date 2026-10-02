@@ -5,6 +5,8 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 ## [Unreleased]
 
 ### Added
+- **Panorama behind the Output and App dials** (from the kit): one effect for the whole row of dials, also across MA-C's, XR-C's and HA-C's dials, chosen in the settings window with a tick per dial; only text and meters get a dark backing.
+- **Short settings panels with a settings window** on the Output and App dials (as in the family): step, Panorama and Other plugins are in the window behind "More settings …".
 - The Output and App dials draw with the kit's level strip (shared with XR-C); they look exactly as before.
 - **Output** dial (Windows): the default output device's volume (rotate) and mute (push or tap), with the level of what is playing in four looks: Digital, Classic (VU meters), Ring and Pie. Follows a change of the default device. Own name possible.
 - **App** dial: one app's volume (Spotify, Firefox, Discord, …) with mute, the app's icon and its own level, in the same four looks. Greyed out with its last volume while the app is closed.

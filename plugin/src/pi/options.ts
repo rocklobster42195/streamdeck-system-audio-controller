@@ -1,11 +1,15 @@
-// SA-C's part of the kit's PI bridge: the lists for <pi-select> (apps with sound, output devices).
+// SA-C's part of the kit's PI bridge: the lists for <pi-select> (apps with sound, output devices)
+// and the dials' Panorama section.
 import streamDeck from "@elgato/streamdeck";
 import { piBridge } from "@rocklobster42195/streamdeck-kit/bridge";
 import { appIcon } from "../audio/app-icons";
 import { systemAudio } from "../audio/system-audio";
+import { panoramaRows } from "../bus/sac-bus";
 
 export function initPiBridge(): void {
     piBridge.init();
+    // The dials' Panorama section (<pi-panorama>): the row's effect, dials and settings
+    panoramaRows.attachPi(piBridge);
     // Apps with sound right now; playing ones first
     piBridge.registerOptions("apps", () =>
         [...systemAudio.apps]
