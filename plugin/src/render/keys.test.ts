@@ -19,9 +19,13 @@ describe("Device key", () => {
         expect(deviceIcon("LG Monitor (NVIDIA High Definition Audio)")).toBe(mdiMonitorSpeaker);
         expect(deviceIcon("Lautsprecher (Realtek(R) Audio)")).toBe(mdiSpeaker);
     });
-    it("frames the active device", () => {
-        expect(svg(renderDeviceKey({ name: "Speakers", active: true }))).toContain("stroke-width=\"6\"");
-        expect(svg(renderDeviceKey({ name: "Speakers", active: false }))).not.toContain("stroke-width=\"6\"");
+    it("draws the active device on: plate and frame in Cerise", () => {
+        expect(svg(renderDeviceKey({ name: "Speakers", device: "Speakers", active: true }))).toContain('stroke="#E14190"');
+        expect(svg(renderDeviceKey({ name: "Speakers", device: "Speakers", active: false }))).not.toContain("#E14190");
+    });
+    it("leaves the name out when a Stream Deck title is set", () => {
+        expect(svg(renderDeviceKey({ device: "Speakers", active: true }))).not.toContain("<text");
+        expect(svg(renderAppKey({ icon: "data:image/png;base64,AAAA", muted: false, inactive: false, mutedLabel: "MUTED" }))).not.toContain("<text");
     });
     it("switches between two devices, or selects one", () => {
         const two = { device: "a", deviceName: "A", device2: "b", device2Name: "B" };

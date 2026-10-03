@@ -33,7 +33,7 @@ The volume of your default output device (the one Windows plays through right no
 
 - **Digital**: LED bars for left and right with peak hold, a dBFS scale, and the volume as a slim bar underneath.
 - **Classic**: two analog VU meters, like on an old tape deck.
-- **Ring** and **Pie**: just the volume, no meter.
+- **Ring**, **Pie** and **Horseshoe** (a ring open at the bottom): just the volume, no meter.
 
 SA-C measures the level only while a dial that shows it is visible, or while another plugin uses it.
 
@@ -49,7 +49,7 @@ One app's volume, like in the Windows volume mixer: Spotify, Firefox, Discord, a
 | Push / tap | Mute / unmute the app |
 
 - The app's volume is relative to the output volume: 100 % means "as loud as the output".
-- The display has the same four looks as the Output dial, with the app's icon next to its name (in the ring for Ring and Pie); the meter shows only this app's sound.
+- The display has the same five looks as the Output dial, with the app's icon next to its name (in the circle for Ring, Pie and Horseshoe); the meter shows only this app's sound.
 - While the app is closed, the dial turns **grey** with its icon and last volume, and waits. It comes back when the app plays again.
 - Apps with several audio streams (browsers) are changed together.
 
@@ -78,7 +78,7 @@ Switches the default output device.
 - **One device chosen:** a press makes it the default (e.g. one key for the headphones, one for the speakers).
 - **Two devices chosen:** a press switches between them.
 
-The key shows the device with a matching icon (headphones, speakers, monitor) and gets a frame while it is the default. SA-C sets it as the default for everything: music, videos and calls.
+The key shows the device with a matching icon (headphones, speakers, monitor) and its name; while it is the default it is "on": a tinted plate and a frame in SA-C's colour. If you give a key a title in Stream Deck, SA-C leaves its own name out (also on the App Mute key). SA-C sets it as the default for everything: music, videos and calls.
 
 ## Requirements
 

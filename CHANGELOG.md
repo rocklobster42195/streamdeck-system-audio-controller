@@ -5,6 +5,8 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 ## [Unreleased]
 
 ### Added
+- **Horseshoe** as a fifth look on the Output and App dials: the volume on a ring open at the bottom (from the kit, as in HA-C and Sonos Controller).
+- **Keys in the family look** (the kit's key style, as MA-C and HA-C): large icons, bold names; the default output device is "on" with a tinted plate and frame. A press that can't do anything (app closed, device gone) shows the kit's alert instead of Stream Deck's. With a Stream Deck title on a key, SA-C draws no name of its own (they would overlap).
 - **Panorama behind the Output and App dials** (from the kit): one effect for the whole row of dials, also across MA-C's, XR-C's and HA-C's dials, chosen in the settings window with a tick per dial; only text and meters get a dark backing.
 - **Short settings panels with a settings window** on the Output and App dials (as in the family): step, Panorama and Other plugins are in the window behind "More settings …".
 - The Output and App dials draw with the kit's level strip (shared with XR-C); they look exactly as before.

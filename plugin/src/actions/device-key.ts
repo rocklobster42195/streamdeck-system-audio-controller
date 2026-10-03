@@ -18,7 +18,7 @@ export class DeviceKey extends AudioKey<DeviceKeySettings> {
     protected override press(inst: KeyInstance<DeviceKeySettings>): void {
         const id = nextDevice(inst.settings, systemAudio.endpoints.out.device?.id);
         if (id && systemAudio.devices.some((d) => d.id === id)) systemAudio.setDefault(id);
-        else void inst.action.showAlert();
+        else this.feedback(inst, "alert");
     }
 
     protected override image(inst: KeyInstance<DeviceKeySettings>): string {
@@ -27,6 +27,7 @@ export class DeviceKey extends AudioKey<DeviceKeySettings> {
         if (!shown) return renderKeyMessage(streamDeck.i18n.t("key.choose_device"));
         // The device's current name when it is connected (it may have been renamed)
         const live = systemAudio.devices.find((d) => d.id === shown.id);
-        return renderDeviceKey({ name: live?.name ?? shown.name, active: shown.id === current });
+        const name = live?.name ?? shown.name;
+        return renderDeviceKey({ name: this.label(inst, name), device: name, active: shown.id === current });
     }
 }

@@ -32,6 +32,7 @@
 			"style_classic": "Classic",
 			"style_ring": "Ring",
 			"style_pie": "Pie",
+			"style_open": "Horseshoe",
 			"title": "Name",
 			"title_placeholder": "The device's or app's name",
 			"dial_controls": "Dial",

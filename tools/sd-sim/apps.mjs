@@ -16,7 +16,7 @@ try {
     sim.add("app-dial", { app: "spotify", appName: "Spotify" }, { column: 0, controller: "Encoder" });
     sim.add("app-dial", { app: "firefox", appName: "Firefox" }, { column: 1, controller: "Encoder" });
     sim.add("app-dial", { app: "spotify", appName: "Spotify", style: "ring" }, { column: 2, controller: "Encoder" });
-    sim.add("app-dial", { app: "firefox", appName: "Firefox", style: "pie" }, { column: 3, controller: "Encoder" });
+    sim.add("app-dial", { app: "firefox", appName: "Firefox", style: "open" }, { column: 3, controller: "Encoder" });
     const spotifyKey = sim.add("app-key", { app: "spotify", appName: "Spotify" }, { column: 0, row: 0, controller: "Keypad" });
     sim.add("app-key", { app: "firefox", appName: "Firefox" }, { column: 1, row: 0, controller: "Keypad" });
     sim.add("app-key", { app: "discord", appName: "Discord" }, { column: 2, row: 0, controller: "Keypad" });

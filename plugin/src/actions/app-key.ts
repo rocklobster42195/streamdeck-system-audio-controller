@@ -27,7 +27,7 @@ export class AppKey extends AudioKey<AppKeySettings> {
     protected override press(inst: KeyInstance<AppKeySettings>): void {
         const app = systemAudio.app(inst.settings.app);
         if (app) systemAudio.setAppMuted(app.app, !app.muted);
-        else void inst.action.showAlert();
+        else this.feedback(inst, "alert");
     }
 
     protected override changed(inst: KeyInstance<AppKeySettings>): void {
@@ -60,7 +60,7 @@ export class AppKey extends AudioKey<AppKeySettings> {
         const feed = this.feeds.get(inst.id);
         const frame = app && feed?.active ? feed.frame() : undefined;
         return renderAppKey({
-            name: last?.name ?? (inst.settings.appName || key),
+            name: this.label(inst, last?.name ?? (inst.settings.appName || key)),
             icon: appIcon(key, !app),
             muted: app?.muted ?? false,
             inactive: !app,

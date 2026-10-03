@@ -1,11 +1,20 @@
 // Base for SA-C's keys: instances, redraw on every audio change (deduplicated), the not-ready
-// states. Subclasses draw the ready state and react to a press.
-import streamDeck, { type DidReceiveSettingsEvent, type KeyAction, type KeyDownEvent, SingletonAction, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
+// states, the kit's press feedback, the user's Stream Deck title (a key draws no name of its own
+// while one is set). Subclasses draw the ready state and react to a press.
+import streamDeck, { type DidReceiveSettingsEvent, type KeyAction, type KeyDownEvent, SingletonAction, type TitleParametersDidChangeEvent, type WillAppearEvent, type WillDisappearEvent } from "@elgato/streamdeck";
 import type { JsonObject } from "@elgato/utils";
+import { isFeedbackPlaying, KEY_BG, playFeedback, type FeedbackKind } from "@rocklobster42195/streamdeck-kit";
 import { systemAudio } from "../audio/system-audio";
 import { renderKeyMessage } from "../render/keys";
 
-export type KeyInstance<S extends JsonObject> = { id: string; action: KeyAction<S>; settings: S; lastImage?: string };
+export type KeyInstance<S extends JsonObject> = {
+    id: string;
+    action: KeyAction<S>;
+    settings: S;
+    lastImage?: string;
+    /** The title the user typed in Stream Deck (drawn over the key). */
+    title?: string;
+};
 
 export abstract class AudioKey<S extends JsonObject> extends SingletonAction<S> {
     protected readonly instances = new Map<string, KeyInstance<S>>();
@@ -46,12 +55,37 @@ export abstract class AudioKey<S extends JsonObject> extends SingletonAction<S> 
         this.changed(inst);
     }
 
+    override onTitleParametersDidChange(ev: TitleParametersDidChangeEvent<S>): void {
+        const inst = this.instances.get(ev.action.id);
+        if (!inst) return;
+        inst.title = ev.payload.title?.trim() || undefined;
+        this.render(inst);
+    }
+
+    /** The name to draw: none while a Stream Deck title is set. */
+    protected label(inst: KeyInstance<S>, name: string): string | undefined {
+        return inst.title ? undefined : name;
+    }
+
+    /** The kit's feedback (check or alert) on the key; it redraws itself when it ends. */
+    protected feedback(inst: KeyInstance<S>, kind: FeedbackKind): void {
+        playFeedback(inst.id, inst.action, kind, {
+            background: KEY_BG,
+            restore: () => {
+                inst.lastImage = undefined;
+                this.render(inst);
+            },
+        });
+    }
+
     override onKeyDown(ev: KeyDownEvent<S>): void {
         const inst = this.instances.get(ev.action.id);
         if (inst && systemAudio.state === "ready") this.press(inst);
     }
 
     protected render(inst: KeyInstance<S>): void {
+        // The feedback owns the key while it plays
+        if (isFeedbackPlaying(inst.id)) return;
         const image = this.imageOrMessage(inst);
         if (image === inst.lastImage) return;
         inst.lastImage = image;
