@@ -1,6 +1,6 @@
 # SA-C — System Audio Controller: Concept
 
-Decided in the grill of 2026-09-29 (`C:\dev\streamdeck-kit\notes\2026-09-29-deckbus-readme-snapshot-sysaudio-grill.md`, Q3–Q7).
+Decided in the grill of 2026-09-29 (`C:\dev\streamdeck\streamdeck-kit\notes\2026-09-29-deckbus-readme-snapshot-sysaudio-grill.md`, Q3–Q7).
 
 ## What it is
 
@@ -14,7 +14,7 @@ A Stream Deck plugin for the computer's own audio: the volume of output and inpu
 
 - Display name **System Audio Controller**, public short name **SA-C**, internally SAC.
 - UUID `de.boriskemper.system-audio-controller`.
-- Folder `C:\dev\system-audio-controller`; GitHub `rocklobster42195/streamdeck-system-audio-controller`, private until release.
+- Folder `C:\dev\streamdeck\system-audio-controller`; GitHub `rocklobster42195/streamdeck-system-audio-controller`, private until release.
 - Logo: the Rocklobster lobster on a **Cerise `#E14190`** circle (house palette).
 - Unofficial community plugin (disclaimer: not affiliated with Elgato, Microsoft or Apple).
 
