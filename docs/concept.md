@@ -38,6 +38,18 @@ A Stream Deck plugin for the computer's own audio: the volume of output and inpu
 
 **Order:** first a minimal SA-C (helper, output dial with meter, meters on the bus), right after the XR-C/MA-C bus work; then the rest of v1.
 
+## v2 (grill 2026-10-05, `notes/2026-10-05-sac-future-grill.md`)
+
+SA-C stays an **audio** plugin; other Windows functions (presence, system values, power, display) don't go in. macOS stays open. Order:
+
+1. **Windows players on deckbus:** media sessions (Spotify, browser, Media Player) as players; SO-C's and MA-C's keys control them. A Windows player's volume is the app's volume.
+2. **Call detection:** "call active (app)" / "call over" on deckbus, from Windows' communications streams (fallback: a known call app uses the mic). MA-C and SO-C get "When a call starts on the PC" in their ePI (nothing / pause / duck, per player, off by default). HA-C mirrors deckbus states as entities (call, mic muted, active output device, scene).
+3. **Multi-state key into the kit** (from HA-C, with its states editor), then the **App output key:** one or more apps, two or more targets incl. "Default", each press steps on. Uses Windows' internal `AudioPolicyConfig` (like EarTrumpet); Windows keeps the routing.
+4. **Audio scenes:** a snapshot, then thinned out (untick what the scene must not touch). Devices, volumes, mutes, per-app values, routings. A global list in the ePI; a key picks one or steps through; HA-C mirrors the active scene as `select`. Apps that start later get their values then.
+5. **Media keys in the kit** (Play/Pause with cover, Playback Control, Volume, Track dial; SO-C, MA-C and SA-C share them). Only after SO-C 0.5.0-beta.1.
+
+**Later (not picked, not rejected):** mic in use / "On Air", Bluetooth headset + battery, push-to-talk, communications device, mono audio, volume cap, system sounds off, spatial sound.
+
 ## Technology
 
 - Node can't reach the OS audio APIs by itself. **Windows first**, through a **long-running PowerShell helper** that compiles a small C# wrapper for Core Audio at start (`Add-Type`):
