@@ -141,7 +141,7 @@ npm run icons        # action and plugin icons
 npm run sim:output   # all actions against a fake system audio, deckbus checks → sim-out/output/
 npm run sim:apps     # App dials and keys with icons; an app closes and turns grey → sim-out/apps/
 npm run sim:duck     # another plugin ducks the output and an app: permission, restore, "you win" → sim-out/duck/
-npm run sim:players  # media sessions as deckbus players: cover, commands, permission (fake); add -- --real to read the real ones (no commands)
+npm run sim:players  # media sessions as deckbus players: cover, commands, permission (fake); -- --real reads the real ones, -- --real --control also controls Spotify (never the device volume)
 npm run link -w sac-plugin   # install the dev build into Stream Deck
 ```
 

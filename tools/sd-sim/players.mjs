@@ -1,13 +1,16 @@
 // Windows' media sessions as deckbus players: the plugin publishes them ("players"), serves their
 // covers on 127.0.0.1, and carries out "transport" requests from another plugin. Against the fake
 // system audio (tools/fake-helper.mjs) by default; --real reads the real media sessions instead and
-// sends no commands (nothing plays, pauses or changes volume).
-//   node tools/sd-sim/players.mjs [--real]
+// sends no commands (nothing plays, pauses or changes volume). --real --control also controls the
+// real Spotify (pause, play, next, previous, seek, its app volume, put back afterwards); the device
+// volume is never touched.
+//   node tools/sd-sim/players.mjs [--real [--control]]
 import { fileURLToPath } from "node:url";
 import { DeckBus } from "@rocklobster42195/streamdeck-kit/bus";
 import { startSim } from "./sim.mjs";
 
 const real = process.argv.includes("--real");
+const control = real && process.argv.includes("--control");
 if (!real) process.env.SAC_HELPER = fileURLToPath(new URL("../fake-helper.mjs", import.meta.url));
 process.env.SAC_CACHE_DIR = fileURLToPath(new URL("../../sim-out/cache", import.meta.url));
 const results = [];
@@ -40,6 +43,36 @@ try {
     check("the cover loads from 127.0.0.1", res.ok && /^http:\/\/127\.0\.0\.1:\d+\/cover\//.test(first.cover) && res.headers.get("content-type")?.startsWith("image/") && bytes > 100, `${first.cover}, ${bytes} bytes`);
     check("the cover gives a colour", /^#[0-9a-f]{6}$/i.test(first.color ?? ""), first.color);
     check("an unknown cover is not found", (await fetch(first.cover.replace(/\/cover\/.*/, "/cover/ffff"))).status === 404);
+
+    if (control) {
+        const find = () => players().find((p) => p.app === "spotify");
+        const start = find();
+        if (!start) throw new Error("Spotify isn't playing anything");
+        const { player } = start;
+        const step = async (label, command, value, done) => {
+            const t0 = Date.now();
+            await transport(player, command, value);
+            await until(() => done(find()), 8000, label);
+            check(label, true, `${Date.now() - t0} ms`);
+        };
+        if (!start.playing) await step("play (to start from playing)", "play", undefined, (p) => p?.playing);
+        await step("pause", "pause", undefined, (p) => p?.playing === false);
+        await step("play", "play", undefined, (p) => p?.playing === true);
+        await step("play-pause pauses", "play-pause", undefined, (p) => p?.playing === false);
+        await step("play-pause plays", "play-pause", undefined, (p) => p?.playing === true);
+        const title = find().title;
+        await step("next: another title", "next", undefined, (p) => p?.title && p.title !== title);
+        const nextCover = find().cover;
+        check("the new track brings its own cover", !!nextCover, nextCover);
+        await step("seek to 1:00", "seek", 60, (p) => p?.position !== undefined && Math.abs(p.position - 60) < 3);
+        await step("previous: back to the start of the track", "previous", undefined, (p) => p?.position !== undefined && p.position < 5);
+        await step("previous again: the first title", "previous", undefined, (p) => p?.title === title);
+        if (start.volume !== undefined) {
+            await step("the app's volume to 40", "volume", 40, (p) => p?.volume === 40);
+            await step("the app's volume back", "volume", start.volume, (p) => p?.volume === start.volume);
+        }
+        check("still playing at the end", find()?.playing === true);
+    }
 
     if (!real) {
         const spotify = players().find((p) => p.app === "spotify");
