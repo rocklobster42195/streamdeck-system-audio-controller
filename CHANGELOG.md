@@ -5,6 +5,7 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 ## [Unreleased]
 
 ### Added
+- **Calls for other plugins:** SA-C tells deckbus when the computer is in a call (`call`: Teams, Discord, Zoom …, with the app), so other plugins can pause or lower music or show it; from Windows' own call detection (what it lowers other sounds for), else a known call app using the mic. Also which apps use the mic now (`mic.users`).
 - **Music on your PC for other plugins' keys:** Windows' media sessions (Spotify, a browser tab, Media Player …) are players on deckbus (`players`), with title, artist, position and cover. Sonos Controller's and MA-C's media keys can play/pause, skip, seek and set the volume of them (the volume is the app's volume in Windows' mixer). On by default; the global setting `othersMayControlPlayers` switches it off.
 - **A closed app stays a player:** after you quit Spotify (or another app with music), its player stays on deckbus as closed (also after a restart), so a key bound to it keeps it; **Play starts the app and plays** (Store apps by their app id, programs by their file).
 - The helper compiles with the C# compiler directly (instead of Add-Type), so it can use Windows' media sessions; on Windows before 1809 it runs without them.

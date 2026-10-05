@@ -1,6 +1,6 @@
 // SA-C's audio helper: the default output and input devices (volume, mute, level), the list of
 // output devices (and switching the default), and the apps playing sound (volume, mute, level per
-// app), and Windows' media sessions (Media.cs). Compiled by sac-audio.ps1 at start, talks JSON lines
+// app), Windows' media sessions (Media.cs), and calls and the mic's users (Calls.cs). Compiled by sac-audio.ps1 at start, talks JSON lines
 // over stdin/stdout.
 //
 // Out (one JSON object per line; "flow" is "out" or "in"):
@@ -17,7 +17,7 @@
 //   {"cmd":"volume","flow":"out","v":0.5}   {"cmd":"volumedb","flow":"out","db":-30}   {"cmd":"mute","flow":"in","on":true}   {"cmd":"meters","flow":"out","on":true}
 //   {"cmd":"default","id":"…"}   {"cmd":"appvolume","app":"spotify","v":0.8}   {"cmd":"appmute","app":"spotify","on":true}
 //   {"cmd":"appmeters","apps":"spotify,firefox"}   {"cmd":"quit"}
-// Media sessions: see Media.cs ("media", "mediacover"; command "media").
+// Media sessions: see Media.cs ("media", "mediacover"; command "media"). Calls: see Calls.cs ("calls", "micusers").
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -69,7 +69,7 @@ namespace SacAudio
             Id = id;
             Volume = (IAudioEndpointVolume)Helper.Activate(device, Helper.IID_Volume);
             Meter = (IAudioMeterInformation)Helper.Activate(device, Helper.IID_Meter);
-            Sessions = Flow == 0 ? (IAudioSessionManager2)Helper.Activate(device, Helper.IID_Sessions) : null;
+            Sessions = (IAudioSessionManager2)Helper.Activate(device, Helper.IID_Sessions);
             Helper.Emit("{\"t\":\"device\",\"flow\":\"" + Tag + "\",\"id\":" + Helper.Quote(id) + ",\"name\":" + Helper.Quote(Helper.Name(device)) + "}");
             lastVolume = -1;
         }
@@ -174,6 +174,11 @@ namespace SacAudio
                 {
                     sinceApps = 0;
                     PollApps();
+                    Safe(() =>
+                    {
+                        Calls.Watch(output.Sessions);
+                        Calls.Poll(input.Sessions);
+                    });
                 }
 #if !NO_MEDIA
                 sinceMedia += TICK_MS;
@@ -367,6 +372,12 @@ namespace SacAudio
             if (session.IsSystemSoundsSession() == 0) return new[] { "system", "System sounds", "" };
             uint pid;
             session.GetProcessId(out pid);
+            return WhoPid(pid);
+        }
+
+        /** A process's key, name and program file (cached per process id); sends its icon once. */
+        internal static string[] WhoPid(uint pid)
+        {
             string[] cached;
             if (processNames.TryGetValue(pid, out cached)) return cached;
             var who = new[] { "pid" + pid, "Process " + pid, "" };

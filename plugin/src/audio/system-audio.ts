@@ -1,11 +1,12 @@
 // The computer's audio as the helper reports it: the default output and input (device, volume,
 // mute), the output devices, the apps playing sound, and Windows' media sessions (what plays in
-// Spotify, a browser …, with their covers). Changes from the deck are applied
+// Spotify, a browser …, with their covers), and whether a call runs (calls.ts). Changes from the deck are applied
 // optimistically. Levels are measured only while anyone wants them (a visible dial or key, a peer
 // on deckbus), per source: "out", "in" or "app:<key>".
 import streamDeck from "@elgato/streamdeck";
 import { CoverServer, LatestSender } from "@rocklobster42195/streamdeck-kit";
 import { saveAppIcon } from "./app-icons";
+import { CallTracker, type AppRef } from "./calls";
 import { AudioHelper, type AppInfo, type Flow, type HelperMessage, type MediaCommand, type MediaSession, type OutputDevice } from "./helper";
 
 export type { AppInfo, Flow, MediaCommand, MediaSession, OutputDevice };
@@ -24,6 +25,11 @@ class SystemAudio {
     readonly endpoints: Record<Flow, Endpoint> = { out: { device: undefined, volume: 0, muted: false }, in: { device: undefined, volume: 0, muted: false } };
     devices: OutputDevice[] = [];
     apps: AppInfo[] = [];
+    /** Apps Windows ducks for (a communications stream: a call), and apps using the mic. */
+    ducking: AppRef[] = [];
+    micUsers: AppRef[] = [];
+    /** The call now, from both (ends after a short quiet time). */
+    readonly calls = new CallTracker(() => this.notify());
     /** Windows' media sessions, as the helper last reported them. */
     media: MediaSession[] = [];
     /** The sessions' covers, served on 127.0.0.1 for every plugin (kit), and their accent colours. */
@@ -58,6 +64,9 @@ class SystemAudio {
                 this.state = "failed";
                 this.meters.clear();
                 this.media = [];
+                this.ducking = [];
+                this.micUsers = [];
+                this.calls.reset();
                 for (const ref of [...this.mediaPending.keys()]) this.mediaDone(ref, "the audio helper ended");
                 this.notify();
             },
@@ -256,6 +265,14 @@ class SystemAudio {
                     this.notify();
                 });
                 return;
+            case "calls":
+                this.ducking = msg.list;
+                this.calls.update(this.ducking, this.micUsers);
+                break;
+            case "micusers":
+                this.micUsers = msg.list;
+                this.calls.update(this.ducking, this.micUsers);
+                break;
             case "mediadone":
                 this.mediaDone(msg.ref, msg.error);
                 return;

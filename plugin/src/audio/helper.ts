@@ -39,6 +39,8 @@ export type HelperMessage =
     | { t: "media"; list: MediaSession[] }
     | { t: "mediacover"; cover: string; type: string; data: string; rgb?: [number, number, number] }
     | { t: "mediadone"; ref: string; error?: string }
+    | { t: "calls"; list: { app: string; name: string }[] }
+    | { t: "micusers"; list: { app: string; name: string }[] }
     | { t: "error"; message: string };
 
 export type HelperCommand =

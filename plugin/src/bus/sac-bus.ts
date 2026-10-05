@@ -3,6 +3,7 @@
 // ("meters/system-output"), the mic ("meters/system-input") and each app with sound
 // ("meters/app-spotify", …). A level is measured and sent only while some peer subscribes.
 // Plugins the user allowed may lower the output or an app for a while ("duck", see ducking.ts).
+// Whether the computer is in a call ("call", see calls.ts) and which apps use the mic ("mic").
 // Windows' media sessions are players ("players", see sac-players.ts) that other plugins' keys control.
 // The Panorama behind SA-C's dials is shared with the other dials of the row (one effect per row,
 // see the kit's panorama/rows.ts).
@@ -89,14 +90,17 @@ function share(): void {
         ...(systemAudio.ready("out") ? systemAudio.apps.filter((a) => a.app !== "system").map((a) => ({ topic: topicOf(`app:${a.app}`), label: a.name, stereo: true, source: `app:${a.app}` as const })) : []),
     ];
     const status = { online: systemAudio.ready("out"), detail: systemAudio.ready("out") ? out.device?.name : systemAudio.state };
-    const mic = systemAudio.ready("in") ? { muted: input.muted } : undefined;
+    const mic = systemAudio.ready("in") ? { muted: input.muted, users: systemAudio.micUsers } : undefined;
+    const call = systemAudio.calls.call;
+    const callState = systemAudio.state === "ready" ? (call ? { active: true, app: call.app, name: call.name, since: call.since } : { active: false }) : undefined;
     const streams = offers.map(({ topic, label, stereo, input }) => ({ topic, label, stereo, ...(input ? { input } : {}) }));
-    const json = JSON.stringify([status, mic, streams]);
+    const json = JSON.stringify([status, mic, streams, callState]);
     if (json !== lastState) {
         lastState = json;
         bus.setState("status", status);
         bus.setState("mic", mic);
         bus.setState("streams", streams);
+        bus.setState("call", callState);
     }
     for (const [topic, w] of watchers) {
         if (offers.some((o) => o.topic === topic)) continue;

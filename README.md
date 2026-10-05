@@ -92,7 +92,8 @@ SA-C talks to other Stream Deck plugins on your computer through **deckbus**, a 
 
 **Offers:**
 - whether the system audio is available, with the output device's name;
-- whether the mic is muted (`mic`), so other plugins could show it;
+- whether the mic is muted, and which apps use it now (`mic`), so other plugins could show it;
+- whether the computer is in a **call** (`call`: Teams, Discord, Zoom … with the app), so other plugins can pause or lower music during it; from Windows' own call detection, else a known call app using the mic;
 - levels, each sent only while another plugin actually uses it:
   - your computer's output as `meters/system-output` (e.g. MA-C's Panorama with **Audio source** set to your output device);
   - the mic as `meters/system-input` (marked as an input, so MA-C's Panorama doesn't list it);
@@ -141,6 +142,7 @@ npm run icons        # action and plugin icons
 npm run sim:output   # all actions against a fake system audio, deckbus checks → sim-out/output/
 npm run sim:apps     # App dials and keys with icons; an app closes and turns grey → sim-out/apps/
 npm run sim:duck     # another plugin ducks the output and an app: permission, restore, "you win" → sim-out/duck/
+npm run sim:call     # a call on deckbus (fake Teams call); -- --real waits for a real one and only watches
 npm run sim:players  # media sessions as deckbus players: cover, commands, permission (fake); -- --real reads the real ones, -- --real --control also controls Spotify, -- --real --launch: quit Spotify, Play starts it (never the device volume)
 npm run link -w sac-plugin   # install the dev build into Stream Deck
 ```

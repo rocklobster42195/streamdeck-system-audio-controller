@@ -108,6 +108,19 @@ const media = (cmd) => {
     return undefined;
 };
 
+// SAC_FAKE_CALL=<start ms>,<end ms>: a Teams call (Windows ducks for it, the mic opens ~3 s later
+// and closes just before the end), as seen with a real Teams test call
+out({ t: "calls", list: [] });
+out({ t: "micusers", list: [] });
+if (process.env.SAC_FAKE_CALL) {
+    const [start, end] = process.env.SAC_FAKE_CALL.split(",").map(Number);
+    const teams = { app: "ms-teams", name: "Microsoft Teams" };
+    setTimeout(() => out({ t: "calls", list: [teams] }), start);
+    setTimeout(() => out({ t: "micusers", list: [teams] }), start + 300);
+    setTimeout(() => out({ t: "micusers", list: [] }), end - 300);
+    setTimeout(() => out({ t: "calls", list: [] }), end);
+}
+
 // SAC_FAKE_STATE=<file>: the volumes after every command, for the simulator's checks
 const dumpState = () => process.env.SAC_FAKE_STATE && fs.writeFileSync(process.env.SAC_FAKE_STATE, JSON.stringify({ out: ends.out, apps, media: sessions }));
 dumpState();
