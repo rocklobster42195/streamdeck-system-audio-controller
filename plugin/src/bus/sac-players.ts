@@ -1,10 +1,12 @@
 // SA-C's players on deckbus: Windows' media sessions (Spotify, a browser tab, Media Player) as
 // players of kind "app" (the kit's players.ts, grill 2026-10-04; SA-C grill 2026-10-05), so SO-C's
 // and MA-C's keys can control music on the computer too. A player's volume is its app's volume
-// (Windows' volume mixer); everything else goes to the session through the helper.
+// (Windows' volume mixer); everything else goes to the session through the helper. An app that
+// closed stays as a "closed" player (media-memory.ts): Play starts it and plays.
 import { PlayerBoard, readableCoverColor, type PlayerEntry, type Transport, type TransportCommand } from "@rocklobster42195/streamdeck-kit";
 import type { MediaCommand, MediaSession } from "../audio/helper";
 import { mediaApp } from "../audio/media-apps";
+import { MediaMemory, type RememberedApp } from "../audio/media-memory";
 import { systemAudio, type AppInfo } from "../audio/system-audio";
 
 export const sacPlayers = new PlayerBoard("SA-C");
@@ -53,16 +55,59 @@ export function mediaPlayers(media: readonly MediaSession[], apps: readonly AppI
     });
 }
 
+/**
+ * Remembered apps without a session now, as players that only take Play (which starts the app).
+ * They carry `closed: true` (peers may add fields), so a key can show them as closed.
+ */
+export function closedPlayers(remembered: readonly RememberedApp[], live: readonly PlayerEntry[]): PlayerEntry[] {
+    return remembered
+        .filter((a) => MediaMemory.canStart(a) && !live.some((p) => p.app === a.app))
+        .map((a) => ({ player: a.player, name: a.name, kind: "app", app: a.app, direct: true, media: true, playing: false, since: a.since, can: ["play", "play-pause"], closed: true }) as PlayerEntry);
+}
+
+/** After starting an app, how long to wait for its session before giving up on playing it. */
+const START_WAIT_MS = 20_000;
+
 const starts: Starts = new Map();
+const memory = new MediaMemory();
 
 function publish(): void {
-    sacPlayers.publish(mediaPlayers(systemAudio.media, systemAudio.apps, systemAudio.covers, starts));
+    const live = mediaPlayers(systemAudio.media, systemAudio.apps, systemAudio.covers, starts);
+    if (systemAudio.state === "unsupported") return sacPlayers.publish(live);
+    memory.seen(live.map((p) => ({ player: p.player, app: p.app!, name: p.name, path: systemAudio.app(p.app)?.path, since: p.since })));
+    sacPlayers.publish([...live, ...closedPlayers(memory.all(), live)]);
 }
+
+/** Starts a closed app, then plays it once its session shows up (in the background: a start takes long). */
+function startAndPlay(a: RememberedApp, log: { warn(m: string): void }): void {
+    MediaMemory.start(a);
+    const sessionOf = () => systemAudio.media.find((m) => mediaApp(m.id, systemAudio.apps).app === a.app);
+    let off = () => {};
+    const timer = setTimeout(() => {
+        off();
+        log.warn(`[players] ${a.name} started, but no media session showed up`);
+    }, START_WAIT_MS);
+    const check = () => {
+        const s = sessionOf();
+        if (!s) return;
+        off();
+        clearTimeout(timer);
+        if (s.status !== "playing") void systemAudio.mediaCommand(s.id, "play").catch((e: unknown) => log.warn(`[players] play after starting ${a.name}: ${e instanceof Error ? e.message : String(e)}`));
+    };
+    off = systemAudio.onChange(check);
+}
+
+let log: { warn(m: string): void } = console;
 
 /** Commands for SA-C's players, from its own keys and from other plugins (deckbus "transport"). */
 async function transport({ player, command, value }: Transport): Promise<void> {
     const session = systemAudio.media.find((m) => m.id === player);
-    if (!session) throw new Error(`transport: ${player} is not playing anything`);
+    if (!session) {
+        const closed = memory.all().find((a) => a.player === player);
+        if (!closed) throw new Error(`transport: ${player} is not playing anything`);
+        if (command !== "play" && command !== "play-pause") throw new Error(`transport: ${closed.name} is closed`);
+        return startAndPlay(closed, log);
+    }
     if ((MEDIA as readonly string[]).includes(command)) return systemAudio.mediaCommand(player, command as MediaCommand, value as number | boolean | string | undefined);
     const who = mediaApp(player, systemAudio.apps);
     const app = who.matched ? systemAudio.app(who.app) : undefined;
@@ -74,7 +119,8 @@ async function transport({ player, command, value }: Transport): Promise<void> {
 }
 
 /** Call once at start: follow the sessions and carry out commands. */
-export function startSacPlayers(log: { warn(m: string): void }): void {
+export function startSacPlayers(logger: { warn(m: string): void }): void {
+    log = logger;
     sacPlayers.serve(transport, { failed: (t, e) => log.warn(`[players] ${t.command} on ${t.player} failed: ${e instanceof Error ? e.message : String(e)}`) });
     systemAudio.onChange(publish);
     publish();

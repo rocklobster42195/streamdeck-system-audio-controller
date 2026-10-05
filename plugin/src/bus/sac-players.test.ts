@@ -77,3 +77,21 @@ describe("media sessions as players", () => {
         expect(p.color).toBeUndefined();
     });
 });
+
+describe("closed apps", async () => {
+    const { closedPlayers } = await import("./sac-players");
+    const spotifyApp = { player: spotify.id, app: "spotify", name: "Spotify", since: 4000 };
+
+    it("keeps a closed app as a player that only takes Play", () => {
+        expect(closedPlayers([spotifyApp], [])).toEqual([
+            { player: spotify.id, name: "Spotify", kind: "app", app: "spotify", direct: true, media: true, playing: false, since: 4000, can: ["play", "play-pause"], closed: true },
+        ]);
+    });
+
+    it("leaves it out while the app has a session, or when it can't be started", () => {
+        const live = mediaPlayers([spotify], apps, covers, new Map(), 5000);
+        expect(closedPlayers([spotifyApp], live)).toEqual([]);
+        expect(closedPlayers([{ player: "Foo.exe", app: "foo", name: "Foo", since: 0 }], [])).toEqual([]);
+        expect(closedPlayers([{ player: "Foo.exe", app: "foo", name: "Foo", path: "C:\\Foo\\Foo.exe", since: 0 }], [])).toHaveLength(1);
+    });
+});

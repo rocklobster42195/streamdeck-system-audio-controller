@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 export type Flow = "out" | "in";
 export type OutputDevice = { id: string; name: string; default: boolean };
-export type AppInfo = { app: string; name: string; v: number; muted: boolean; active: boolean };
+export type AppInfo = { app: string; name: string; /** The program file, when readable. */ path?: string; v: number; muted: boolean; active: boolean };
 export type MediaCommand = "play-pause" | "play" | "pause" | "next" | "previous" | "seek" | "shuffle" | "repeat";
 /** A Windows media session (helper/Media.cs): `id` is the app's model id, `pos`/`dur` seconds, `at` ms. */
 export type MediaSession = {

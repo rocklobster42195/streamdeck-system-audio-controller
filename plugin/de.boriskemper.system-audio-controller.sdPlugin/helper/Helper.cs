@@ -9,7 +9,7 @@
 //   {"t":"volume","flow":"out","v":0.42,"db":-18.3,"muted":false}       on start and on every change (db: the device's level in dB)
 //   {"t":"meter","flow":"out","l":-23.5,"r":-24.1}                      peak dBFS, ~20/s, while metering is on
 //   {"t":"devices","list":[{"id":"…","name":"…","default":true}]}       active output devices, on change
-//   {"t":"apps","list":[{"app":"spotify","name":"Spotify","v":1,"muted":false,"active":true}]}   on change
+//   {"t":"apps","list":[{"app":"spotify","name":"Spotify","path":"C:\…\Spotify.exe","v":1,"muted":false,"active":true}]}   on change (path: the program, when readable)
 //   {"t":"appmeter","app":"spotify","l":-20.1,"r":-21.0}                ~20/s for the apps asked for
 //   {"t":"appicon","app":"spotify","png":"<base64>","grey":"<base64>"}    once per app: its icon, 128×128, and greyed
 //   {"t":"error","message":"…"}
@@ -110,6 +110,7 @@ namespace SacAudio
     {
         public string Key;
         public string Name;
+        public string Path;
         public readonly List<ISimpleAudioVolume> Volumes = new List<ISimpleAudioVolume>();
         public readonly List<IAudioMeterInformation> Meters = new List<IAudioMeterInformation>();
         public bool Active;
@@ -310,7 +311,7 @@ namespace SacAudio
                         if (state == 2) continue; // expired
                         var who = Who(session);
                         App app;
-                        if (!found.TryGetValue(who[0], out app)) found[who[0]] = app = new App { Key = who[0], Name = who[1] };
+                        if (!found.TryGetValue(who[0], out app)) found[who[0]] = app = new App { Key = who[0], Name = who[1], Path = who[2] };
                         app.Volumes.Add((ISimpleAudioVolume)session);
                         app.Meters.Add((IAudioMeterInformation)session);
                         if (state == 1) app.Active = true;
@@ -333,7 +334,7 @@ namespace SacAudio
                     muted &= m;
                 }
                 a.Volumes[0].GetMasterVolume(out v);
-                return "{\"app\":" + Quote(a.Key) + ",\"name\":" + Quote(a.Name) + ",\"v\":" + Num(v) + ",\"muted\":" + Bool(muted) + ",\"active\":" + Bool(a.Active) + "}";
+                return "{\"app\":" + Quote(a.Key) + ",\"name\":" + Quote(a.Name) + (a.Path != "" ? ",\"path\":" + Quote(a.Path) : "") + ",\"v\":" + Num(v) + ",\"muted\":" + Bool(muted) + ",\"active\":" + Bool(a.Active) + "}";
             });
             var json = "{\"t\":\"apps\",\"list\":[" + string.Join(",", items) + "]}";
             if (json == lastApps) return;
@@ -360,15 +361,15 @@ namespace SacAudio
             }
         }
 
-        /** An app's key (process name, e.g. "spotify") and name (its description, e.g. "Spotify"). */
+        /** An app's key (process name, e.g. "spotify"), name (its description, e.g. "Spotify") and program file ("" when unreadable). */
         static string[] Who(IAudioSessionControl2 session)
         {
-            if (session.IsSystemSoundsSession() == 0) return new[] { "system", "System sounds" };
+            if (session.IsSystemSoundsSession() == 0) return new[] { "system", "System sounds", "" };
             uint pid;
             session.GetProcessId(out pid);
             string[] cached;
             if (processNames.TryGetValue(pid, out cached)) return cached;
-            var who = new[] { "pid" + pid, "Process " + pid };
+            var who = new[] { "pid" + pid, "Process " + pid, "" };
             try
             {
                 var p = Process.GetProcessById((int)pid);
@@ -376,6 +377,7 @@ namespace SacAudio
                 who[1] = p.ProcessName;
                 var description = p.MainModule.FileVersionInfo.FileDescription;
                 if (!string.IsNullOrWhiteSpace(description)) who[1] = description.Trim();
+                who[2] = p.MainModule.FileName;
                 if (iconsSent.Add(who[0]))
                 {
                     var png = Icons.Png(p.MainModule.FileName);

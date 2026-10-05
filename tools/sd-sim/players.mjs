@@ -3,14 +3,16 @@
 // system audio (tools/fake-helper.mjs) by default; --real reads the real media sessions instead and
 // sends no commands (nothing plays, pauses or changes volume). --real --control also controls the
 // real Spotify (pause, play, next, previous, seek, its app volume, put back afterwards); the device
-// volume is never touched.
-//   node tools/sd-sim/players.mjs [--real [--control]]
+// volume is never touched. --real --launch waits until you quit Spotify, checks it stays as a
+// "closed" player, then sends Play: Spotify starts and plays.
+//   node tools/sd-sim/players.mjs [--real [--control | --launch]]
 import { fileURLToPath } from "node:url";
 import { DeckBus } from "@rocklobster42195/streamdeck-kit/bus";
 import { startSim } from "./sim.mjs";
 
 const real = process.argv.includes("--real");
 const control = real && process.argv.includes("--control");
+const launch = real && process.argv.includes("--launch");
 if (!real) process.env.SAC_HELPER = fileURLToPath(new URL("../fake-helper.mjs", import.meta.url));
 process.env.SAC_CACHE_DIR = fileURLToPath(new URL("../../sim-out/cache", import.meta.url));
 const results = [];
@@ -34,15 +36,18 @@ const until = async (check, ms, label) => {
 };
 const transport = (player, command, value) => peer.request(simSac(), "transport", { player, command, ...(value !== undefined ? { value } : {}) }, 10_000);
 try {
-    await until(() => players().length > 0 && players().some((p) => p.cover), 15_000, "players with a cover");
+    if (launch) await until(() => players().some((p) => p.app === "spotify"), 15_000, "Spotify (running or remembered)");
+    else await until(() => players().length > 0 && players().some((p) => p.cover), 15_000, "players with a cover");
     for (const p of players()) console.log(`      ${p.playing ? "▶" : "Ⅱ"} ${p.name} (${p.app}): ${p.title ?? "–"}${p.artist ? ` · ${p.artist}` : ""}  vol ${p.volume ?? "–"}  can ${p.can.join(",")}`);
     const first = players().find((p) => p.cover);
-    check("players are apps, direct, with media", players().every((p) => p.kind === "app" && p.direct && p.media));
-    const res = await fetch(first.cover);
-    const bytes = (await res.arrayBuffer()).byteLength;
-    check("the cover loads from 127.0.0.1", res.ok && /^http:\/\/127\.0\.0\.1:\d+\/cover\//.test(first.cover) && res.headers.get("content-type")?.startsWith("image/") && bytes > 100, `${first.cover}, ${bytes} bytes`);
-    check("the cover gives a colour", /^#[0-9a-f]{6}$/i.test(first.color ?? ""), first.color);
-    check("an unknown cover is not found", (await fetch(first.cover.replace(/\/cover\/.*/, "/cover/ffff"))).status === 404);
+    if (first) {
+        check("players are apps, direct, with media", players().every((p) => p.kind === "app" && p.direct && p.media));
+        const res = await fetch(first.cover);
+        const bytes = (await res.arrayBuffer()).byteLength;
+        check("the cover loads from 127.0.0.1", res.ok && /^http:\/\/127\.0\.0\.1:\d+\/cover\//.test(first.cover) && res.headers.get("content-type")?.startsWith("image/") && bytes > 100, `${first.cover}, ${bytes} bytes`);
+        check("the cover gives a colour", /^#[0-9a-f]{6}$/i.test(first.color ?? ""), first.color);
+        check("an unknown cover is not found", (await fetch(first.cover.replace(/\/cover\/.*/, "/cover/ffff"))).status === 404);
+    }
 
     if (control) {
         const find = () => players().find((p) => p.app === "spotify");
@@ -72,6 +77,21 @@ try {
             await step("the app's volume back", "volume", start.volume, (p) => p?.volume === start.volume);
         }
         check("still playing at the end", find()?.playing === true);
+    }
+
+    if (launch) {
+        const find = () => players().find((p) => p.app === "spotify");
+        if (!find()) throw new Error("start with Spotify running");
+        if (!find().closed) console.log("      now quit Spotify (File → Quit) …");
+        await until(() => find()?.closed === true, 120_000, "Spotify closed");
+        const closed = find();
+        check("a quit Spotify stays as a closed player that only takes Play", !closed.playing && closed.can.join() === "play,play-pause", JSON.stringify({ name: closed.name, can: closed.can, since: closed.since }));
+        const t0 = Date.now();
+        await transport(closed.player, "play");
+        await until(() => find() && !find().closed, 30_000, "Spotify's session");
+        check("Play starts Spotify", true, `${Date.now() - t0} ms`);
+        await until(() => find()?.playing === true, 20_000, "Spotify playing");
+        check("… and it plays", true, `${Date.now() - t0} ms, ${find().title}`);
     }
 
     if (!real) {
