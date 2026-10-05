@@ -4,10 +4,9 @@
 // optimistically. Levels are measured only while anyone wants them (a visible dial or key, a peer
 // on deckbus), per source: "out", "in" or "app:<key>".
 import streamDeck from "@elgato/streamdeck";
-import { LatestSender } from "@rocklobster42195/streamdeck-kit";
+import { CoverServer, LatestSender } from "@rocklobster42195/streamdeck-kit";
 import { saveAppIcon } from "./app-icons";
 import { AudioHelper, type AppInfo, type Flow, type HelperMessage, type MediaCommand, type MediaSession, type OutputDevice } from "./helper";
-import { MediaCovers } from "./media-covers";
 
 export type { AppInfo, Flow, MediaCommand, MediaSession, OutputDevice };
 export type AudioState = "unsupported" | "starting" | "ready" | "failed";
@@ -27,7 +26,13 @@ class SystemAudio {
     apps: AppInfo[] = [];
     /** Windows' media sessions, as the helper last reported them. */
     media: MediaSession[] = [];
-    readonly covers = new MediaCovers({ warn: (m) => streamDeck.logger.warn(m) });
+    /** The sessions' covers, served on 127.0.0.1 for every plugin (kit), and their accent colours. */
+    private readonly coverServer = new CoverServer({ log: { warn: (m) => streamDeck.logger.warn(m) } });
+    private readonly coverColors = new Map<string, [number, number, number]>();
+    readonly covers = {
+        url: (key: string | undefined) => this.coverServer.url(key),
+        rgb: (key: string | undefined) => (key ? this.coverColors.get(key) : undefined),
+    };
     private mediaRef = 0;
     private readonly mediaPending = new Map<string, { resolve: () => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }>();
     /** Every app seen since the plugin started, with its last state (for a dial or key while it is closed). */
@@ -63,7 +68,7 @@ class SystemAudio {
 
     stop(): void {
         this.helper?.stop();
-        this.covers.stop();
+        this.coverServer.stop();
     }
 
     /** The helper runs and the direction has a device. */
@@ -245,7 +250,11 @@ class SystemAudio {
                 break;
             case "mediacover":
                 // Told once the server runs (the first cover starts it), so the URL is there
-                void this.covers.add(msg.cover, msg.type, msg.data, msg.rgb).then(() => this.notify());
+                if (msg.rgb) this.coverColors.set(msg.cover, msg.rgb);
+                void this.coverServer.add(msg.data, msg.type, msg.cover).then(() => {
+                    for (const key of [...this.coverColors.keys()]) if (!this.coverServer.has(key)) this.coverColors.delete(key);
+                    this.notify();
+                });
                 return;
             case "mediadone":
                 this.mediaDone(msg.ref, msg.error);
