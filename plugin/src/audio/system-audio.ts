@@ -1,13 +1,15 @@
 // The computer's audio as the helper reports it: the default output and input (device, volume,
-// mute), the output devices, and the apps playing sound. Changes from the deck are applied
+// mute), the output devices, the apps playing sound, and Windows' media sessions (what plays in
+// Spotify, a browser …, with their covers). Changes from the deck are applied
 // optimistically. Levels are measured only while anyone wants them (a visible dial or key, a peer
 // on deckbus), per source: "out", "in" or "app:<key>".
 import streamDeck from "@elgato/streamdeck";
 import { LatestSender } from "@rocklobster42195/streamdeck-kit";
 import { saveAppIcon } from "./app-icons";
-import { AudioHelper, type AppInfo, type Flow, type HelperMessage, type OutputDevice } from "./helper";
+import { AudioHelper, type AppInfo, type Flow, type HelperMessage, type MediaCommand, type MediaSession, type OutputDevice } from "./helper";
+import { MediaCovers } from "./media-covers";
 
-export type { AppInfo, Flow, OutputDevice };
+export type { AppInfo, Flow, MediaCommand, MediaSession, OutputDevice };
 export type AudioState = "unsupported" | "starting" | "ready" | "failed";
 export type Meter = { l: number; r: number };
 export type MeterSource = Flow | `app:${string}`;
@@ -15,12 +17,19 @@ export type Endpoint = { device: { id: string; name: string } | undefined; volum
 
 /** After an own change, the helper's echoes of older values are ignored for this long. */
 const HOLD_MS = 400;
+/** A media command without an answer from the helper by then has failed. */
+const MEDIA_TIMEOUT_MS = 5000;
 
 class SystemAudio {
     state: AudioState = process.platform === "win32" || process.env.SAC_HELPER ? "starting" : "unsupported";
     readonly endpoints: Record<Flow, Endpoint> = { out: { device: undefined, volume: 0, muted: false }, in: { device: undefined, volume: 0, muted: false } };
     devices: OutputDevice[] = [];
     apps: AppInfo[] = [];
+    /** Windows' media sessions, as the helper last reported them. */
+    media: MediaSession[] = [];
+    readonly covers = new MediaCovers({ warn: (m) => streamDeck.logger.warn(m) });
+    private mediaRef = 0;
+    private readonly mediaPending = new Map<string, { resolve: () => void; reject: (e: Error) => void; timer: ReturnType<typeof setTimeout> }>();
     /** Every app seen since the plugin started, with its last state (for a dial or key while it is closed). */
     private readonly seen = new Map<string, AppInfo>();
 
@@ -43,6 +52,8 @@ class SystemAudio {
             () => {
                 this.state = "failed";
                 this.meters.clear();
+                this.media = [];
+                for (const ref of [...this.mediaPending.keys()]) this.mediaDone(ref, "the audio helper ended");
                 this.notify();
             },
             { info: (m) => streamDeck.logger.info(m), warn: (m) => streamDeck.logger.warn(m) },
@@ -52,6 +63,7 @@ class SystemAudio {
 
     stop(): void {
         this.helper?.stop();
+        this.covers.stop();
     }
 
     /** The helper runs and the direction has a device. */
@@ -135,6 +147,17 @@ class SystemAudio {
         this.notify();
     }
 
+    /** A command for a media session (`id` as in MediaSession); rejects when Windows or the app refuses. */
+    mediaCommand(id: string, command: MediaCommand, value?: number | boolean | string): Promise<void> {
+        if (!this.helper || this.state !== "ready") return Promise.reject(new Error("the audio helper isn't running"));
+        const ref = String(++this.mediaRef);
+        return new Promise<void>((resolve, reject) => {
+            const timer = setTimeout(() => this.mediaDone(ref, "no answer from the audio helper"), MEDIA_TIMEOUT_MS);
+            this.mediaPending.set(ref, { resolve, reject, timer });
+            this.helper?.send({ cmd: "media", ref, id, do: command, ...(value !== undefined ? { value } : {}) });
+        });
+    }
+
     // Ducking (see ducking.ts): sent as they are, no optimistic values; the helper reports the result
 
     duckDb(flow: Flow, db: number): void {
@@ -174,6 +197,15 @@ class SystemAudio {
         return s;
     }
 
+    private mediaDone(ref: string, error?: string): void {
+        const p = this.mediaPending.get(ref);
+        if (!p) return;
+        this.mediaPending.delete(ref);
+        clearTimeout(p.timer);
+        if (error) p.reject(new Error(error));
+        else p.resolve();
+    }
+
     private sendAppMeters(): void {
         const apps = [...this.owners].filter(([source, set]) => source.startsWith("app:") && set.size > 0).map(([source]) => source.slice(4));
         this.helper?.send({ cmd: "appmeters", apps: apps.join(",") });
@@ -208,6 +240,16 @@ class SystemAudio {
             case "appicon":
                 saveAppIcon(msg.app, msg.png, msg.grey);
                 break;
+            case "media":
+                this.media = msg.list;
+                break;
+            case "mediacover":
+                // Told once the server runs (the first cover starts it), so the URL is there
+                void this.covers.add(msg.cover, msg.type, msg.data, msg.rgb).then(() => this.notify());
+                return;
+            case "mediadone":
+                this.mediaDone(msg.ref, msg.error);
+                return;
             case "meter":
                 this.meterIn(msg.flow, msg);
                 return;

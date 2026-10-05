@@ -3,6 +3,7 @@
 // ("meters/system-output"), the mic ("meters/system-input") and each app with sound
 // ("meters/app-spotify", …). A level is measured and sent only while some peer subscribes.
 // Plugins the user allowed may lower the output or an app for a while ("duck", see ducking.ts).
+// Windows' media sessions are players ("players", see sac-players.ts) that other plugins' keys control.
 // The Panorama behind SA-C's dials is shared with the other dials of the row (one effect per row,
 // see the kit's panorama/rows.ts).
 import streamDeck from "@elgato/streamdeck";
@@ -12,6 +13,7 @@ import { ActionsState, DeckBus, serveDucking } from "@rocklobster42195/streamdec
 import { Ducker, type DuckTarget } from "../audio/ducking";
 import { systemAudio, type MeterSource } from "../audio/system-audio";
 import { isDuckAllowed, onDuckRevoked, setDuckPeers } from "./duck-permissions";
+import { sacPlayers, startSacPlayers } from "./sac-players";
 
 type Offer = { topic: string; label: string; stereo: boolean; input?: true; source: MeterSource };
 
@@ -28,6 +30,11 @@ export const panorama = new SharedPanorama(new PanoramaEngine({ defaultColor: "#
 
 /** One effect per row of dials, agreed with the other plugins. */
 export const panoramaRows = new PanoramaRows(panorama, { name: "SA-C", actions });
+
+// Global setting "othersMayControlPlayers" (default on, as in SO-C): other plugins' keys may control
+// the computer's media sessions over deckbus ("transport"). Off: they get "not allowed".
+let othersMay = true;
+const readOthersMay = (s: Record<string, unknown>) => (othersMay = s.othersMayControlPlayers !== false);
 
 /** Call before streamDeck.connect(), so no willAppear is missed. */
 export function trackSacActions(): void {
@@ -50,6 +57,10 @@ export async function startSacBus(): Promise<void> {
     bus.setState("actions", actions.list());
     panorama.connect(bus);
     panoramaRows.connect(bus);
+    sacPlayers.connect(bus, { allow: () => othersMay });
+    streamDeck.settings.onDidReceiveGlobalSettings((ev) => readOthersMay(ev.settings as Record<string, unknown>));
+    readOthersMay(await streamDeck.settings.getGlobalSettings().catch(() => ({})));
+    startSacPlayers(streamDeck.logger);
     if (!(await bus.start())) return;
     streamDeck.logger.info(`[deckbus] SA-C in slot ${bus.slot}`);
     systemAudio.onChange(share);

@@ -1,6 +1,7 @@
 // SA-C's audio helper: the default output and input devices (volume, mute, level), the list of
 // output devices (and switching the default), and the apps playing sound (volume, mute, level per
-// app). Compiled by sac-audio.ps1 at start (Add-Type), talks JSON lines over stdin/stdout.
+// app), and Windows' media sessions (Media.cs). Compiled by sac-audio.ps1 at start, talks JSON lines
+// over stdin/stdout.
 //
 // Out (one JSON object per line; "flow" is "out" or "in"):
 //   {"t":"ready"}
@@ -16,6 +17,7 @@
 //   {"cmd":"volume","flow":"out","v":0.5}   {"cmd":"volumedb","flow":"out","db":-30}   {"cmd":"mute","flow":"in","on":true}   {"cmd":"meters","flow":"out","on":true}
 //   {"cmd":"default","id":"…"}   {"cmd":"appvolume","app":"spotify","v":0.8}   {"cmd":"appmute","app":"spotify","on":true}
 //   {"cmd":"appmeters","apps":"spotify,firefox"}   {"cmd":"quit"}
+// Media sessions: see Media.cs ("media", "mediacover"; command "media").
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -116,7 +118,7 @@ namespace SacAudio
     public static class Helper
     {
         const int eRender = 0, eCapture = 1, CLSCTX_ALL = 23, DEVICE_STATE_ACTIVE = 1;
-        const int TICK_MS = 50, DEVICE_CHECK_MS = 1000, APPS_MS = 500;
+        const int TICK_MS = 50, DEVICE_CHECK_MS = 1000, APPS_MS = 500, MEDIA_MS = 250;
         internal static readonly Guid IID_Volume = new Guid("5CDF2C82-841E-4546-9722-0CF74078229A");
         internal static readonly Guid IID_Meter = new Guid("C02216F6-8C67-4B5B-9D00-D008E73E0064");
         internal static readonly Guid IID_Sessions = new Guid("77AA99A0-1BD6-484F-8BC7-2C654C9A9B6F");
@@ -152,7 +154,7 @@ namespace SacAudio
             Emit("{\"t\":\"ready\"}");
             CheckDevices();
             PollApps();
-            int sinceDevices = 0, sinceApps = 0;
+            int sinceDevices = 0, sinceApps = 0, sinceMedia = MEDIA_MS;
             while (!inputClosed)
             {
                 string cmd;
@@ -172,6 +174,15 @@ namespace SacAudio
                     sinceApps = 0;
                     PollApps();
                 }
+#if !NO_MEDIA
+                sinceMedia += TICK_MS;
+                if (sinceMedia >= MEDIA_MS)
+                {
+                    var elapsed = sinceMedia;
+                    sinceMedia = 0;
+                    Safe(() => Media.Poll(elapsed));
+                }
+#endif
                 Safe(output.PollVolume);
                 Safe(input.PollVolume);
                 Safe(output.PollMeter);
@@ -225,6 +236,22 @@ namespace SacAudio
                     case "appmeters":
                         meteredApps = new HashSet<string>(Field(json, "apps").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
                         break;
+#if !NO_MEDIA
+                    case "media":
+                        // Answered with {"t":"mediadone","ref":…}, so the plugin can tell who asked whether it worked
+                        var reference = Field(json, "ref");
+                        try
+                        {
+                            Media.Command(Field(json, "id"), Field(json, "do"), Field(json, "value"));
+                            Emit("{\"t\":\"mediadone\",\"ref\":" + Quote(reference) + "}");
+                        }
+                        catch (Exception e)
+                        {
+                            Emit("{\"t\":\"mediadone\",\"ref\":" + Quote(reference) + ",\"error\":" + Quote(e.Message) + "}");
+                        }
+                        Media.Poll(0);
+                        break;
+#endif
                 }
             }
             catch (Exception e)

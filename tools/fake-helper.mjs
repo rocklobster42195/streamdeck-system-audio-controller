@@ -1,5 +1,6 @@
-// A stand-in for helper/sac-audio.ps1 (same JSON lines, see Helper.cs): two output devices, a
-// mic, two apps with sound, invented music on the meters. The simulator runs the plugin with
+// A stand-in for helper/sac-audio.ps1 (same JSON lines, see Helper.cs and Media.cs): two output
+// devices, a mic, two apps with sound, invented music on the meters, and two media sessions
+// (Spotify playing, a Firefox tab that only takes play/pause). The simulator runs the plugin with
 // SAC_HELPER=<this file>; nothing touches the real system audio.
 import fs from "node:fs";
 import readline from "node:readline";
@@ -63,8 +64,52 @@ if (process.env.SAC_FAKE_QUIT) {
     }, 4000);
 }
 
+// Media sessions (Media.cs): "next" moves on through the tracks, a refused command gets an error
+const tracks = [
+    { title: "Sim Song One", artist: "The Simulators", album: "Fake Hits", dur: 200, color: "#E14190" },
+    { title: "Sim Song Two", artist: "The Simulators", album: "Fake Hits", dur: 180, color: "#009FDF" },
+];
+let track = 0;
+const sessions = [
+    { id: "Spotify.exe", status: "playing", pos: 30, at: Date.now(), shuffle: false, repeat: "off", can: "play-pause,play,pause,next,previous,seek,shuffle,repeat" },
+    { id: "308046B0AF4A39CB", status: "paused", title: "A video", artist: "", album: "", can: "play-pause,play,pause" },
+];
+const coverOf = async (t) => {
+    const cover = `c${tracks.indexOf(t)}`;
+    const data = (await sharp(Buffer.from(disc(t.color, String(tracks.indexOf(t) + 1)))).png().toBuffer()).toString("base64");
+    const hex = t.color.slice(1);
+    out({ t: "mediacover", cover, type: "image/png", data, rgb: [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16)) });
+    return cover;
+};
+const sendMedia = async () => {
+    const t = tracks[track];
+    const spotify = sessions[0];
+    Object.assign(spotify, { title: t.title, artist: t.artist, album: t.album, dur: t.dur, cover: await coverOf(t) });
+    out({ t: "media", list: sessions });
+};
+await sendMedia();
+const media = (cmd) => {
+    const s = sessions.find((x) => x.id === cmd.id);
+    if (!s) return `no media session ${cmd.id}`;
+    if (!s.can.split(",").includes(cmd.do)) return `${cmd.id} refused ${cmd.do}`;
+    const now = Date.now();
+    if (s.status === "playing" && s.pos !== undefined) s.pos += (now - s.at) / 1000;
+    s.at = now;
+    switch (cmd.do) {
+        case "play-pause": s.status = s.status === "playing" ? "paused" : "playing"; break;
+        case "play": s.status = "playing"; break;
+        case "pause": s.status = "paused"; break;
+        case "next": track = (track + 1) % tracks.length; s.pos = 0; break;
+        case "previous": track = (track + tracks.length - 1) % tracks.length; s.pos = 0; break;
+        case "seek": s.pos = Number(cmd.value); break;
+        case "shuffle": s.shuffle = cmd.value === true; break;
+        case "repeat": s.repeat = cmd.value; break;
+    }
+    return undefined;
+};
+
 // SAC_FAKE_STATE=<file>: the volumes after every command, for the simulator's checks
-const dumpState = () => process.env.SAC_FAKE_STATE && fs.writeFileSync(process.env.SAC_FAKE_STATE, JSON.stringify({ out: ends.out, apps }));
+const dumpState = () => process.env.SAC_FAKE_STATE && fs.writeFileSync(process.env.SAC_FAKE_STATE, JSON.stringify({ out: ends.out, apps, media: sessions }));
 dumpState();
 
 readline
@@ -107,6 +152,12 @@ readline
             case "appmeters":
                 meteredApps = cmd.apps ? cmd.apps.split(",") : [];
                 break;
+            case "media": {
+                const error = media(cmd);
+                out({ t: "mediadone", ref: cmd.ref, ...(error ? { error } : {}) });
+                void sendMedia();
+                break;
+            }
         }
     })
     .on("close", () => process.exit(0));

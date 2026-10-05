@@ -5,6 +5,8 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 ## [Unreleased]
 
 ### Added
+- **Music on your PC for other plugins' keys:** Windows' media sessions (Spotify, a browser tab, Media Player …) are players on deckbus (`players`), with title, artist, position and cover. Sonos Controller's and MA-C's media keys can play/pause, skip, seek and set the volume of them (the volume is the app's volume in Windows' mixer). On by default; the global setting `othersMayControlPlayers` switches it off.
+- The helper compiles with the C# compiler directly (instead of Add-Type), so it can use Windows' media sessions; on Windows before 1809 it runs without them.
 - **Horseshoe** as a fifth look on the Output and App dials: the volume on a ring open at the bottom (from the kit, as in HA-C and Sonos Controller).
 - **Keys in the family look** (the kit's key style, as MA-C and HA-C): large icons, bold names; the default output device is "on" with a tinted plate and frame. A press that can't do anything (app closed, device gone) shows the kit's alert instead of Stream Deck's. With a Stream Deck title on a key, SA-C draws no name of its own (they would overlap).
 - **Panorama behind the Output and App dials** (from the kit): one effect for the whole row of dials, also across MA-C's, XR-C's and HA-C's dials, chosen in the settings window with a tick per dial; only text and meters get a dark backing.

@@ -98,6 +98,8 @@ SA-C talks to other Stream Deck plugins on your computer through **deckbus**, a 
   - the mic as `meters/system-input` (marked as an input, so MA-C's Panorama doesn't list it);
   - every app with sound, e.g. `meters/app-spotify`, so MA-C's Panorama can move with Spotify only (not Windows' system sounds).
 
+- the music playing on your computer as **players** (`players`): Spotify, a browser tab, Media Player … with title, cover and position. Sonos Controller's and MA-C's media keys can control them (play/pause, next, seek, volume = the app's volume). Covers are served to the other plugins on `127.0.0.1` only. Another plugin's keys may do this by default, like a remote; the global setting `othersMayControlPlayers: false` switches it off.
+
 **Uses:** the Panorama of the other plugins' dials in the same row: one effect across all of them (state `panorama-rows`; the plugin with the leftmost dial computes it).
 
 **Only with your permission:** lowering the volume for a moment (*ducking*), e.g. MA-C during an announcement. Nobody may by default. Switch it on per plugin under **Other plugins**: in the settings window of an Output or App dial, or in the settings of an App Mute key (the list shows the plugins on deckbus right now).
@@ -139,6 +141,7 @@ npm run icons        # action and plugin icons
 npm run sim:output   # all actions against a fake system audio, deckbus checks → sim-out/output/
 npm run sim:apps     # App dials and keys with icons; an app closes and turns grey → sim-out/apps/
 npm run sim:duck     # another plugin ducks the output and an app: permission, restore, "you win" → sim-out/duck/
+npm run sim:players  # media sessions as deckbus players: cover, commands, permission (fake); add -- --real to read the real ones (no commands)
 npm run link -w sac-plugin   # install the dev build into Stream Deck
 ```
 

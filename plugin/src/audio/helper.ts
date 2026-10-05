@@ -8,6 +8,24 @@ import { fileURLToPath } from "node:url";
 export type Flow = "out" | "in";
 export type OutputDevice = { id: string; name: string; default: boolean };
 export type AppInfo = { app: string; name: string; v: number; muted: boolean; active: boolean };
+export type MediaCommand = "play-pause" | "play" | "pause" | "next" | "previous" | "seek" | "shuffle" | "repeat";
+/** A Windows media session (helper/Media.cs): `id` is the app's model id, `pos`/`dur` seconds, `at` ms. */
+export type MediaSession = {
+    id: string;
+    status: "playing" | "paused" | "stopped" | "other";
+    title: string;
+    artist: string;
+    album: string;
+    pos?: number;
+    dur?: number;
+    at?: number;
+    shuffle?: boolean;
+    repeat?: "off" | "one" | "all";
+    /** Comma-separated MediaCommands. */
+    can: string;
+    /** Key of a cover sent before with "mediacover". */
+    cover?: string;
+};
 
 export type HelperMessage =
     | { t: "ready" }
@@ -18,6 +36,9 @@ export type HelperMessage =
     | { t: "apps"; list: AppInfo[] }
     | { t: "appmeter"; app: string; l: number; r: number }
     | { t: "appicon"; app: string; png: string; grey: string }
+    | { t: "media"; list: MediaSession[] }
+    | { t: "mediacover"; cover: string; type: string; data: string; rgb?: [number, number, number] }
+    | { t: "mediadone"; ref: string; error?: string }
     | { t: "error"; message: string };
 
 export type HelperCommand =
@@ -29,6 +50,7 @@ export type HelperCommand =
     | { cmd: "appvolume"; app: string; v: number }
     | { cmd: "appmute"; app: string; on: boolean }
     | { cmd: "appmeters"; apps: string }
+    | { cmd: "media"; ref: string; id: string; do: MediaCommand; value?: number | boolean | string }
     | { cmd: "quit" };
 
 const RESTART_MS = [1000, 2000, 5000, 10_000, 30_000];
