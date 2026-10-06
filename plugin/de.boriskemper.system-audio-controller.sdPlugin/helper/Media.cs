@@ -247,6 +247,13 @@ namespace SacAudio
                 using (var md5 = MD5.Create()) key = string.Concat(md5.ComputeHash(bytes).Take(8).Select(b => b.ToString("x2")));
                 if (coversSent.Add(key))
                 {
+                    // Square, so a key shows it whole (Stream Deck stretches images to the key's square)
+                    var square = Square(bytes);
+                    if (square != null)
+                    {
+                        bytes = square;
+                        type = "image/jpeg";
+                    }
                     var rgb = Accent(bytes);
                     if (string.IsNullOrEmpty(type)) type = "image/jpeg";
                     Helper.Emit("{\"t\":\"mediacover\",\"cover\":\"" + key + "\",\"type\":" + Helper.Quote(type) + ",\"data\":\"" + Convert.ToBase64String(bytes) + "\"" +
@@ -259,6 +266,78 @@ namespace SacAudio
                 Helper.Emit("{\"t\":\"error\",\"message\":" + Helper.Quote("media cover: " + e.Message) + "}");
                 return "";
             }
+        }
+
+        /** Covers are sent at most this big (a key is 144 px, a dial strip 200 px high). */
+        const int COVER_PX = 300;
+
+        /**
+         * The cover as a square JPEG of at most COVER_PX: black bars cut off first (YouTube's
+         * thumbnails often have them), then the middle square (a 16:9 video picture loses its sides,
+         * as on a phone's lock screen). Null when it can't be read.
+         */
+        static byte[] Square(byte[] image)
+        {
+            try
+            {
+                using (var ms = new MemoryStream(image))
+                using (var src = new Bitmap(ms))
+                {
+                    var r = Content(src);
+                    var side = Math.Min(r.Width, r.Height);
+                    var crop = new Rectangle(r.X + (r.Width - side) / 2, r.Y + (r.Height - side) / 2, side, side);
+                    var px = Math.Min(COVER_PX, side);
+                    using (var dst = new Bitmap(px, px))
+                    {
+                        using (var g = Graphics.FromImage(dst))
+                        {
+                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                            g.DrawImage(src, new Rectangle(0, 0, px, px), crop, GraphicsUnit.Pixel);
+                        }
+                        var jpeg = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().First(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        var quality = new System.Drawing.Imaging.EncoderParameters(1);
+                        quality.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 90L);
+                        using (var outStream = new MemoryStream())
+                        {
+                            dst.Save(outStream, jpeg, quality);
+                            return outStream.ToArray();
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /** The picture without black bars at its edges (rows or columns that are all nearly black). */
+        static Rectangle Content(Bitmap b)
+        {
+            Func<int, bool> darkRow = y =>
+            {
+                for (var x = 0; x < b.Width; x += 4) if (!Dark(b.GetPixel(x, y))) return false;
+                return true;
+            };
+            Func<int, bool> darkColumn = x =>
+            {
+                for (var y = 0; y < b.Height; y += 4) if (!Dark(b.GetPixel(x, y))) return false;
+                return true;
+            };
+            int top = 0, bottom = b.Height - 1, left = 0, right = b.Width - 1;
+            while (top < bottom && darkRow(top)) top++;
+            while (bottom > top && darkRow(bottom)) bottom--;
+            while (left < right && darkColumn(left)) left++;
+            while (right > left && darkColumn(right)) right--;
+            var r = new Rectangle(left, top, right - left + 1, bottom - top + 1);
+            // An all-dark or nearly all-dark picture: keep it as it is
+            return r.Width < b.Width / 4 || r.Height < b.Height / 4 ? new Rectangle(0, 0, b.Width, b.Height) : r;
+        }
+
+        static bool Dark(Color c)
+        {
+            return c.R < 20 && c.G < 20 && c.B < 20;
         }
 
         /**
