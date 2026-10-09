@@ -16,7 +16,7 @@
     "dependencies": {
         "@elgato/streamdeck": "^2.1.0",
         "@mdi/js": "^7.4.47",
-        "@rocklobster42195/streamdeck-kit": "^0.1.0-alpha.12"
+        "@rocklobster42195/streamdeck-kit": "^0.1.0-alpha.14"
     },
     "devDependencies": {
         "@elgato/cli": "^1.7.4",
