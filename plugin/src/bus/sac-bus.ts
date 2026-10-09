@@ -59,6 +59,17 @@ export async function startSacBus(): Promise<void> {
     panorama.connect(bus);
     panoramaRows.connect(bus);
     sacPlayers.connect(bus, { allow: () => othersMay });
+    // The Panorama's colour ("Cover": the active player) counts SA-C's own players too, also when an
+    // SA-C dial leads the row
+    const shareCovers = () =>
+        panoramaRows.covers.publish(
+            sacPlayers
+                .ownPlayers()
+                .filter((p) => p.color)
+                .map((p) => ({ player: p.player, name: p.name, color: p.color!, playing: p.playing, since: p.since })),
+        );
+    sacPlayers.onChange(shareCovers);
+    shareCovers();
     streamDeck.settings.onDidReceiveGlobalSettings((ev) => readOthersMay(ev.settings as Record<string, unknown>));
     readOthersMay(await streamDeck.settings.getGlobalSettings().catch(() => ({})));
     startSacPlayers(streamDeck.logger);
