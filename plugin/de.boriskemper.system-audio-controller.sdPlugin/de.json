@@ -28,6 +28,13 @@
 			"device_none": "Keins"
 		},
 		"pi": {
+			"player": "Player",
+			"show_player_name": "Playername",
+			"show_player_name_hint": "Name des Players auf der Taste",
+			"show_title": "Titel",
+			"show_title_hint": "Titel und Interpret laufen über die Taste",
+			"show_progress": "Fortschritt",
+			"show_progress_hint": "Balken in der Farbe des Covers",
 			"app_output_help": "Drücken: Die Apps spielen auf dem nächsten Gerät der Liste (z. B. Headset → Lautsprecher → Windows-Standard). Windows merkt es sich für die App; eine geschlossene App bekommt es beim Start.",
 			"output_apps": "Apps",
 			"no_apps": "Gerade keine App mit Ton. Starte eine und öffne dies dann noch einmal.",

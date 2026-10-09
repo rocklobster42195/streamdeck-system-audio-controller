@@ -28,6 +28,13 @@
 			"device_none": "None"
 		},
 		"pi": {
+			"player": "Player",
+			"show_player_name": "Player name",
+			"show_player_name_hint": "The player's name on the key",
+			"show_title": "Title",
+			"show_title_hint": "Title and artist scroll across the key",
+			"show_progress": "Progress",
+			"show_progress_hint": "A bar in the cover's colour",
 			"app_output_help": "Press: the apps play on the next device of the list (e.g. headset → speakers → Windows default). Windows keeps it for the app; an app that is closed gets it when it starts.",
 			"output_apps": "Apps",
 			"no_apps": "No apps with sound right now. Start one, then open this again.",

@@ -129,6 +129,21 @@
                     "Image": "imgs/actions/app-output-key/key"
                 }
             ]
+        },
+        {
+            "Name": "Play/Pause",
+            "UUID": "de.boriskemper.system-audio-controller.play-pause-key",
+            "Icon": "imgs/actions/play-pause-key/icon",
+            "Tooltip": "Play or pause music on the PC or any other player on the deck.",
+            "PropertyInspectorPath": "ui/play-pause-key.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/play-pause-key/key"
+                }
+            ]
         }
     ]
 }

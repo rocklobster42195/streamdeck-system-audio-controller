@@ -5,6 +5,7 @@
 // closed stays as a "closed" player (media-memory.ts): Play starts it and plays.
 import { PlayerBoard, readableCoverColor, type PlayerEntry, type Transport, type TransportCommand } from "@rocklobster42195/streamdeck-kit";
 import type { MediaCommand, MediaSession } from "../audio/helper";
+import { appIcon } from "../audio/app-icons";
 import { mediaApp } from "../audio/media-apps";
 import { MediaMemory, type RememberedApp } from "../audio/media-memory";
 import { systemAudio, type AppInfo } from "../audio/system-audio";
@@ -77,9 +78,15 @@ const memory = new MediaMemory();
 
 function publish(): void {
     const live = mediaPlayers(systemAudio.media, systemAudio.apps, systemAudio.covers, starts);
-    if (systemAudio.state === "unsupported") return sacPlayers.publish(live);
+    if (systemAudio.state === "unsupported") return sacPlayers.publish(live.map(withSource));
     memory.seen(live.map((p) => ({ player: p.player, app: p.app!, name: p.name, path: systemAudio.app(p.app)?.path, since: p.since })));
-    sacPlayers.publish([...live, ...closedPlayers(memory.all(), live)]);
+    sacPlayers.publish([...live, ...closedPlayers(memory.all(), live)].map(withSource));
+}
+
+/** Where it plays from, for the universal keys' "source" corner: the app, with its icon (grey while closed). */
+function withSource(p: PlayerEntry): PlayerEntry {
+    const icon = appIcon(p.app, (p as { closed?: boolean }).closed === true);
+    return { ...p, source: p.name, ...(icon ? { sourceIcon: icon } : {}) };
 }
 
 /** Starts a closed app, then plays it once its session shows up (in the background: a start takes long). */

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Play/Pause</title>
+  <link rel="stylesheet" href="pi-theme.css" />
+  <link rel="stylesheet" href="sac.css" />
+  <script src="locales.generated.js"></script>
+  <script src="pi.js"></script>
+</head>
+
+<body hidden>
+  <pi-section title="pi.player">
+    <pi-select setting="player" source="players" placeholder="kit.player_active_all"></pi-select>
+  </pi-section>
+
+  <pi-section title="pi.display">
+    <pi-toggle setting="showName" label="pi.show_player_name" hint="pi.show_player_name_hint"></pi-toggle>
+    <pi-toggle setting="showTitle" label="pi.show_title" hint="pi.show_title_hint"></pi-toggle>
+    <pi-toggle setting="showProgress" label="pi.show_progress" hint="pi.show_progress_hint"></pi-toggle>
+  </pi-section>
+
+  <pi-section title="kit.corners_title">
+    <pi-corners default-left="marker" default-right="source"></pi-corners>
+  </pi-section>
+
+  <pi-section title="kit.key_color">
+    <pi-key-color setting="keyColor" label=""></pi-key-color>
+  </pi-section>
+
+  <div class="pi-footer"><span data-plugin-version>SA-C</span></div>
+</body>
+
+</html>

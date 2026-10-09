@@ -1,7 +1,9 @@
 // SA-C's part of the kit's PI bridge: the lists for <pi-select> (apps with sound, output devices)
 // and the dials' Panorama section.
 import streamDeck from "@elgato/streamdeck";
+import { playerOptions } from "@rocklobster42195/streamdeck-kit";
 import { piBridge } from "@rocklobster42195/streamdeck-kit/bridge";
+import { sacPlayers } from "../bus/sac-players";
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
 import { WINDOWS_DEFAULT } from "../audio/app-output";
 import { appIcon } from "../audio/app-icons";
@@ -26,6 +28,8 @@ export function initPiBridge(): void {
     ]);
     // Icons for the targets (<pi-states> searches the Material Design Icons)
     piBridge.registerOptions("mdi-icons", mdiOptions);
+    // The Play/Pause key's player: every player on the deck (the PC's apps, speakers of other plugins)
+    piBridge.registerOptions("players", () => playerOptions(sacPlayers.players()));
     // The Device key's second device can be left empty again
     piBridge.registerOptions("output-devices-optional", () => [
         { value: "", label: streamDeck.i18n.t("key.device_none") },
