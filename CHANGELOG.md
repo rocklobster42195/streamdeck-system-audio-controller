@@ -4,6 +4,9 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 
 ## [Unreleased]
 
+### Fixed
+- **Fixed: a dial in a shared Panorama stayed black** after its plugin (or another one in the row) restarted, until the plugin leading the row restarted too (kit 0.1.0-alpha.7).
+
 ### Added
 - **App Output** key: plays one or more apps on another device (Discord on the headset, Spotify on the speakers); each press moves them to the next device of your list (e.g. headset → speakers → Windows default), each with its own name, icon and colour (the kit's Multi-state key). Windows keeps it for the app; an app that is closed gets it when it starts. Uses Windows' internal app routing (as EarTrumpet does). Apps show up on whichever device they play (also the App dial and App Mute key, after a route), with the volume of the session that plays.
 - **Calls for other plugins:** SA-C tells deckbus when the computer is in a call (`call`: Teams, Discord, Zoom …, with the app), so other plugins can pause or lower music or show it; from Windows' own call detection (what it lowers other sounds for), else a known call app using the mic. Also which apps use the mic now (`mic.users`).
