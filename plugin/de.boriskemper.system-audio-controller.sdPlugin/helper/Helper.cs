@@ -114,6 +114,9 @@ namespace SacAudio
         public string Name;
         public string Path;
         public readonly List<uint> Pids = new List<uint>();
+        /** The session whose volume the app shows: a playing one, else the one on the default output. */
+        public ISimpleAudioVolume Shown;
+        public int ShownRank = -1;
         public readonly List<ISimpleAudioVolume> Volumes = new List<ISimpleAudioVolume>();
         public readonly List<IAudioMeterInformation> Meters = new List<IAudioMeterInformation>();
         public bool Active;
@@ -139,6 +142,8 @@ namespace SacAudio
         static readonly HashSet<string> iconsSent = new HashSet<string>();
         static HashSet<string> meteredApps = new HashSet<string>();
         static string lastDevices = "";
+        /** Every active output device's sessions (an app routed to another device plays there). */
+        static Dictionary<string, IAudioSessionManager2> renderSessions = new Dictionary<string, IAudioSessionManager2>();
         static string lastApps = "";
 
         public static void Run()
@@ -292,28 +297,50 @@ namespace SacAudio
             int count;
             all.GetCount(out count);
             var items = new List<string>();
+            var managers = new Dictionary<string, IAudioSessionManager2>();
             for (var i = 0; i < count; i++)
             {
                 IMMDevice device;
                 all.Item(i, out device);
                 string id;
                 device.GetId(out id);
+                IAudioSessionManager2 manager;
+                if (!renderSessions.TryGetValue(id, out manager))
+                {
+                    try
+                    {
+                        manager = (IAudioSessionManager2)Activate(device, IID_Sessions);
+                    }
+                    catch
+                    {
+                        manager = null;
+                    }
+                }
+                if (manager != null) managers[id] = manager;
                 items.Add("{\"id\":" + Quote(id) + ",\"name\":" + Quote(Name(device)) + ",\"default\":" + Bool(id == output.Id) + "}");
             }
+            renderSessions = managers;
             var json = "{\"t\":\"devices\",\"list\":[" + string.Join(",", items) + "]}";
             if (json == lastDevices) return;
             lastDevices = json;
             Emit(json);
         }
 
-        /** The apps with sound on the default output; sends the list when anything changed. */
+        /**
+         * The apps with sound, on any output device (one routed elsewhere plays there); sends the list
+         * when anything changed.
+         */
         static void PollApps()
         {
             var found = new Dictionary<string, App>();
             try
             {
+                var managers = new List<IAudioSessionManager2>(renderSessions.Values);
+                if (output.Sessions != null && !managers.Contains(output.Sessions)) managers.Add(output.Sessions);
+                foreach (var manager in managers)
+                {
                 IAudioSessionEnumerator sessions;
-                if (output.Sessions != null && output.Sessions.GetSessionEnumerator(out sessions) == 0)
+                if (manager.GetSessionEnumerator(out sessions) == 0)
                 {
                     int count;
                     sessions.GetCount(out count);
@@ -329,10 +356,19 @@ namespace SacAudio
                         if (!found.TryGetValue(who[0], out app)) found[who[0]] = app = new App { Key = who[0], Name = who[1], Path = who[2] };
                         uint pid;
                         if (session.GetProcessId(out pid) == 0 && !app.Pids.Contains(pid)) app.Pids.Add(pid);
-                        app.Volumes.Add((ISimpleAudioVolume)session);
+                        var volume = (ISimpleAudioVolume)session;
+                        app.Volumes.Add(volume);
+                        // An app routed away keeps a silent session on the old device (at 100 %): not that one
+                        var rank = (state == 1 ? 2 : 0) + (ReferenceEquals(manager, output.Sessions) ? 1 : 0);
+                        if (rank > app.ShownRank)
+                        {
+                            app.Shown = volume;
+                            app.ShownRank = rank;
+                        }
                         app.Meters.Add((IAudioMeterInformation)session);
                         if (state == 1) app.Active = true;
                     }
+                }
                 }
             }
             catch (Exception e)
@@ -350,7 +386,7 @@ namespace SacAudio
                     s.GetMute(out m);
                     muted &= m;
                 }
-                a.Volumes[0].GetMasterVolume(out v);
+                (a.Shown ?? a.Volumes[0]).GetMasterVolume(out v);
                 string route = null;
                 foreach (var pid in a.Pids)
                 {
