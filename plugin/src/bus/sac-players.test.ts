@@ -50,6 +50,11 @@ describe("media sessions as players", () => {
         expect(p.can).toEqual(["play-pause", "pause", "next", "previous", "seek", "shuffle", "repeat", "volume", "volume-by", "mute"]);
     });
 
+    it("doesn't count a session as playing while its app makes no sound here (Spotify Connect, a muted tab)", () => {
+        expect(mediaPlayers([spotify], [{ ...apps[0], active: false }], covers, new Map(), 5000)[0].playing).toBe(false);
+        expect(mediaPlayers([spotify], [], covers, new Map(), 5000)[0]).toMatchObject({ playing: false, since: 0 });
+    });
+
     it("offers no volume for a session whose app has no sound", () => {
         const [p] = mediaPlayers([spotify], [], covers, new Map(), 5000);
         expect(p.volume).toBeUndefined();

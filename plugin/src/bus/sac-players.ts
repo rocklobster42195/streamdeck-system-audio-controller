@@ -22,13 +22,17 @@ export type Starts = Map<string, { playing: boolean; since: number }>;
 export function mediaPlayers(media: readonly MediaSession[], apps: readonly AppInfo[], covers: Covers, starts: Starts, now = Date.now()): PlayerEntry[] {
     for (const id of [...starts.keys()]) if (!media.some((m) => m.id === id)) starts.delete(id);
     return media.map((m) => {
-        const playing = m.status === "playing";
+        const who = mediaApp(m.id, apps);
+        const audio = who.matched ? apps.find((a) => a.app === who.app) : undefined;
+        // Playing only while the app makes sound here: Spotify showing a Spotify Connect playback
+        // on other speakers (it even shows the next track early, seen 2026-10-09 with Music
+        // Assistant) or a muted tab says "playing" without a sound on this computer, and would
+        // otherwise become the active player (the Panorama's colour)
+        const playing = m.status === "playing" && audio?.active === true;
         const start = starts.get(m.id) ?? { playing: false, since: 0 };
         if (playing && !start.playing) start.since = now;
         start.playing = playing;
         starts.set(m.id, start);
-        const who = mediaApp(m.id, apps);
-        const audio = who.matched ? apps.find((a) => a.app === who.app) : undefined;
         const can = m.can.split(",").filter((c): c is TransportCommand => (MEDIA as readonly string[]).includes(c));
         if (audio) can.push("volume", "volume-by", "mute");
         const rgb = covers.rgb(m.cover);
