@@ -1,6 +1,7 @@
 // SA-C's audio helper: the default output and input devices (volume, mute, level), the list of
 // output devices (and switching the default), and the apps playing sound (volume, mute, level per
-// app), Windows' media sessions (Media.cs), and calls and the mic's users (Calls.cs). Compiled by sac-audio.ps1 at start, talks JSON lines
+// app, and which device it plays on: Routing.cs), Windows' media sessions (Media.cs), and calls and
+// the mic's users (Calls.cs). Compiled by sac-audio.ps1 at start, talks JSON lines
 // over stdin/stdout.
 //
 // Out (one JSON object per line; "flow" is "out" or "in"):
@@ -9,14 +10,15 @@
 //   {"t":"volume","flow":"out","v":0.42,"db":-18.3,"muted":false}       on start and on every change (db: the device's level in dB)
 //   {"t":"meter","flow":"out","l":-23.5,"r":-24.1}                      peak dBFS, ~20/s, while metering is on
 //   {"t":"devices","list":[{"id":"…","name":"…","default":true}]}       active output devices, on change
-//   {"t":"apps","list":[{"app":"spotify","name":"Spotify","path":"C:\…\Spotify.exe","v":1,"muted":false,"active":true}]}   on change (path: the program, when readable)
+//   {"t":"apps","list":[{"app":"spotify","name":"Spotify","path":"C:\…\Spotify.exe","v":1,"muted":false,"active":true}]}   on change (path: the program, when readable;
+//     "route": the device the app is routed to, "" = Windows' default; missing when unknown)
 //   {"t":"appmeter","app":"spotify","l":-20.1,"r":-21.0}                ~20/s for the apps asked for
 //   {"t":"appicon","app":"spotify","png":"<base64>","grey":"<base64>"}    once per app: its icon, 128×128, and greyed
 //   {"t":"error","message":"…"}
 // In:
 //   {"cmd":"volume","flow":"out","v":0.5}   {"cmd":"volumedb","flow":"out","db":-30}   {"cmd":"mute","flow":"in","on":true}   {"cmd":"meters","flow":"out","on":true}
 //   {"cmd":"default","id":"…"}   {"cmd":"appvolume","app":"spotify","v":0.8}   {"cmd":"appmute","app":"spotify","on":true}
-//   {"cmd":"appmeters","apps":"spotify,firefox"}   {"cmd":"quit"}
+//   {"cmd":"appmeters","apps":"spotify,firefox"}   {"cmd":"route","app":"discord","device":"{0.0.0.00000000}.{…}"} ("" = default)   {"cmd":"quit"}
 // Media sessions: see Media.cs ("media", "mediacover"; command "media"). Calls: see Calls.cs ("calls", "micusers").
 using System;
 using System.Collections.Concurrent;
@@ -111,6 +113,7 @@ namespace SacAudio
         public string Key;
         public string Name;
         public string Path;
+        public readonly List<uint> Pids = new List<uint>();
         public readonly List<ISimpleAudioVolume> Volumes = new List<ISimpleAudioVolume>();
         public readonly List<IAudioMeterInformation> Meters = new List<IAudioMeterInformation>();
         public bool Active;
@@ -239,6 +242,13 @@ namespace SacAudio
                         }
                         PollApps();
                         break;
+                    case "route":
+                        App routed;
+                        if (!apps.TryGetValue(Field(json, "app"), out routed)) break;
+                        Routing.Set(routed.Pids, Field(json, "device"));
+                        lastApps = "";
+                        PollApps();
+                        break;
                     case "appmeters":
                         meteredApps = new HashSet<string>(Field(json, "apps").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
                         break;
@@ -317,6 +327,8 @@ namespace SacAudio
                         var who = Who(session);
                         App app;
                         if (!found.TryGetValue(who[0], out app)) found[who[0]] = app = new App { Key = who[0], Name = who[1], Path = who[2] };
+                        uint pid;
+                        if (session.GetProcessId(out pid) == 0 && !app.Pids.Contains(pid)) app.Pids.Add(pid);
                         app.Volumes.Add((ISimpleAudioVolume)session);
                         app.Meters.Add((IAudioMeterInformation)session);
                         if (state == 1) app.Active = true;
@@ -339,7 +351,14 @@ namespace SacAudio
                     muted &= m;
                 }
                 a.Volumes[0].GetMasterVolume(out v);
-                return "{\"app\":" + Quote(a.Key) + ",\"name\":" + Quote(a.Name) + (a.Path != "" ? ",\"path\":" + Quote(a.Path) : "") + ",\"v\":" + Num(v) + ",\"muted\":" + Bool(muted) + ",\"active\":" + Bool(a.Active) + "}";
+                string route = null;
+                foreach (var pid in a.Pids)
+                {
+                    if (a.Key == "system" || pid == 0) break;
+                    route = Routing.Get(pid);
+                    if (route != null) break;
+                }
+                return "{\"app\":" + Quote(a.Key) + ",\"name\":" + Quote(a.Name) + (a.Path != "" ? ",\"path\":" + Quote(a.Path) : "") + ",\"v\":" + Num(v) + ",\"muted\":" + Bool(muted) + ",\"active\":" + Bool(a.Active) + (route != null ? ",\"route\":" + Quote(route) : "") + "}";
             });
             var json = "{\"t\":\"apps\",\"list\":[" + string.Join(",", items) + "]}";
             if (json == lastApps) return;

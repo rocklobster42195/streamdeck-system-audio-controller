@@ -23,9 +23,17 @@
 			"choose_device": "Gerät wählen",
 			"app_playing": "spielt",
 			"device_default": "gerade Standard",
+			"device_windows": "Windows-Standard",
+			"add_targets": "Ziele hinzufügen",
 			"device_none": "Keins"
 		},
 		"pi": {
+			"app_output_help": "Drücken: Die Apps spielen auf dem nächsten Gerät der Liste (z. B. Headset → Lautsprecher → Windows-Standard). Windows merkt es sich für die App; eine geschlossene App bekommt es beim Start.",
+			"output_apps": "Apps",
+			"no_apps": "Gerade keine App mit Ton. Starte eine und öffne dies dann noch einmal.",
+			"output_targets": "Geräte",
+			"output_targets_hint": "Eine Zeile pro Schritt. „Windows-Standard“ spielt die App dort, wo Windows alles abspielt.",
+			"color_caption": "Name in der Farbe der Stufe",
 			"output_help": "Drehen: Lautstärke · Drücken oder Tippen: stumm. Zeigt das Standard-Ausgabegerät.",
 			"display": "Anzeige",
 			"style_digital": "Digital",
@@ -60,6 +68,8 @@
 		"Mute the microphone. Clearly red while muted.": "Schaltet das Mikrofon stumm. Deutlich rot, solange es stumm ist.",
 		"Output Device": "Ausgabegerät",
 		"Switch the default output device, e.g. headphones and speakers.": "Wechselt das Standard-Ausgabegerät, z. B. zwischen Kopfhörer und Lautsprechern.",
+		"App Output": "App-Ausgabe",
+		"Play apps on another device (Discord on the headset, Spotify on the speakers).": "Spielt Apps auf einem anderen Gerät (Discord aufs Headset, Spotify auf die Lautsprecher).",
 		"App Mute": "App stumm",
 		"Mute one app (Spotify, Discord, …) with a key that shows its icon.": "Schaltet eine App (Spotify, Discord, …) stumm, auf einer Taste mit ihrem Icon."
 	}

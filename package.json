@@ -19,7 +19,8 @@
         "sim:apps": "node tools/sd-sim/apps.mjs sim-out",
         "sim:duck": "node tools/sd-sim/duck.mjs sim-out",
         "sim:players": "node tools/sd-sim/players.mjs",
-        "sim:call": "node tools/sd-sim/call.mjs"
+        "sim:call": "node tools/sd-sim/call.mjs",
+        "sim:app-output": "node tools/sd-sim/app-output.mjs sim-out"
     },
     "devDependencies": {
         "@tsconfig/node24": "^24.0.5",

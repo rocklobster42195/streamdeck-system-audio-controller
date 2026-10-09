@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>App Output</title>
+  <link rel="stylesheet" href="pi-theme.css" />
+  <link rel="stylesheet" href="sac.css" />
+  <script src="locales.generated.js"></script>
+  <script src="pi.js"></script>
+</head>
+
+<body hidden>
+  <div class="pi-hint sac-help" data-i18n="pi.app_output_help"></div>
+
+  <pi-section title="pi.output_apps">
+    <pi-multi-select setting="apps" source="apps" label-setting="appNames" empty="pi.no_apps"></pi-multi-select>
+  </pi-section>
+
+  <pi-section title="pi.output_targets">
+    <pi-states setting="states" value-source="output-targets"></pi-states>
+  </pi-section>
+  <div class="pi-hint sac-help" data-i18n="pi.output_targets_hint"></div>
+
+  <pi-section title="pi.display">
+    <pi-toggle setting="colorCaption" label="pi.color_caption"></pi-toggle>
+  </pi-section>
+
+  <div class="pi-footer"><span data-plugin-version>SA-C</span></div>
+</body>
+
+</html>

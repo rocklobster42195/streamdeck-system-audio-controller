@@ -23,9 +23,17 @@
 			"choose_device": "Choose a device",
 			"app_playing": "playing",
 			"device_default": "default now",
+			"device_windows": "Windows default",
+			"add_targets": "Add targets",
 			"device_none": "None"
 		},
 		"pi": {
+			"app_output_help": "Press: the apps play on the next device of the list (e.g. headset → speakers → Windows default). Windows keeps it for the app; an app that is closed gets it when it starts.",
+			"output_apps": "Apps",
+			"no_apps": "No apps with sound right now. Start one, then open this again.",
+			"output_targets": "Devices",
+			"output_targets_hint": "One row per step. \"Windows default\" plays the app where Windows plays everything.",
+			"color_caption": "Name in the state's colour",
 			"output_help": "Rotate: volume · Push or tap: mute. Shows the default output device.",
 			"display": "Display",
 			"style_digital": "Digital",
@@ -60,6 +68,8 @@
 		"Mute the microphone. Clearly red while muted.": "Mute the microphone. Clearly red while muted.",
 		"Output Device": "Output Device",
 		"Switch the default output device, e.g. headphones and speakers.": "Switch the default output device, e.g. headphones and speakers.",
+		"App Output": "App Output",
+		"Play apps on another device (Discord on the headset, Spotify on the speakers).": "Play apps on another device (Discord on the headset, Spotify on the speakers).",
 		"App Mute": "App Mute",
 		"Mute one app (Spotify, Discord, …) with a key that shows its icon.": "Mute one app (Spotify, Discord, …) with a key that shows its icon."
 	}

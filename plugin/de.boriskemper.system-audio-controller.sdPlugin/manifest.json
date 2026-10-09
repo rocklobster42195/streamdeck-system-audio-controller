@@ -114,6 +114,21 @@
                     "Image": "imgs/actions/device-key/key"
                 }
             ]
+        },
+        {
+            "Name": "App Output",
+            "UUID": "de.boriskemper.system-audio-controller.app-output-key",
+            "Icon": "imgs/actions/app-output-key/icon",
+            "Tooltip": "Play apps on another device (Discord on the headset, Spotify on the speakers).",
+            "PropertyInspectorPath": "ui/app-output-key.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/app-output-key/key"
+                }
+            ]
         }
     ]
 }

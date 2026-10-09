@@ -7,7 +7,17 @@ import { fileURLToPath } from "node:url";
 
 export type Flow = "out" | "in";
 export type OutputDevice = { id: string; name: string; default: boolean };
-export type AppInfo = { app: string; name: string; /** The program file, when readable. */ path?: string; v: number; muted: boolean; active: boolean };
+export type AppInfo = {
+    app: string;
+    name: string;
+    /** The program file, when readable. */
+    path?: string;
+    v: number;
+    muted: boolean;
+    active: boolean;
+    /** The output device the app is routed to; "" = Windows' default; missing when unknown. */
+    route?: string;
+};
 export type MediaCommand = "play-pause" | "play" | "pause" | "next" | "previous" | "seek" | "shuffle" | "repeat";
 /** A Windows media session (helper/Media.cs): `id` is the app's model id, `pos`/`dur` seconds, `at` ms. */
 export type MediaSession = {
@@ -52,6 +62,7 @@ export type HelperCommand =
     | { cmd: "appvolume"; app: string; v: number }
     | { cmd: "appmute"; app: string; on: boolean }
     | { cmd: "appmeters"; apps: string }
+    | { cmd: "route"; app: string; device: string }
     | { cmd: "media"; ref: string; id: string; do: MediaCommand; value?: number | boolean | string }
     | { cmd: "quit" };
 

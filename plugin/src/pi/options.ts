@@ -2,6 +2,8 @@
 // and the dials' Panorama section.
 import streamDeck from "@elgato/streamdeck";
 import { piBridge } from "@rocklobster42195/streamdeck-kit/bridge";
+import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
+import { WINDOWS_DEFAULT } from "../audio/app-output";
 import { appIcon } from "../audio/app-icons";
 import { systemAudio } from "../audio/system-audio";
 import { panoramaRows } from "../bus/sac-bus";
@@ -17,6 +19,13 @@ export function initPiBridge(): void {
             .map((a) => ({ value: a.app, label: a.name, sub: a.active ? streamDeck.i18n.t("key.app_playing") : `${a.app}.exe`, image: appIcon(a.app) })),
     );
     piBridge.registerOptions("output-devices", () => systemAudio.devices.map((d) => ({ value: d.id, label: d.name, sub: d.default ? streamDeck.i18n.t("key.device_default") : undefined })));
+    // The App output key's targets: Windows' default, then the devices
+    piBridge.registerOptions("output-targets", () => [
+        { value: WINDOWS_DEFAULT, label: streamDeck.i18n.t("key.device_windows") },
+        ...systemAudio.devices.map((d) => ({ value: d.id, label: d.name })),
+    ]);
+    // Icons for the targets (<pi-states> searches the Material Design Icons)
+    piBridge.registerOptions("mdi-icons", mdiOptions);
     // The Device key's second device can be left empty again
     piBridge.registerOptions("output-devices-optional", () => [
         { value: "", label: streamDeck.i18n.t("key.device_none") },

@@ -55,6 +55,8 @@ class SystemAudio {
     /** Per target ("out", "in", "app:<key>"): until when helper echoes are ignored. */
     private readonly held = new Map<string, number>();
     private readonly senders = new Map<string, LatestSender<number>>();
+    /** Routes for apps that had no sound when asked: sent once they show up. */
+    private readonly pendingRoutes = new Map<string, string>();
 
     start(): void {
         if (this.state === "unsupported" || this.helper) return;
@@ -172,6 +174,28 @@ class SystemAudio {
         });
     }
 
+    /**
+     * Plays an app on a device ("" = Windows' default). Windows keeps it for the app. An app without
+     * sound right now gets it as soon as it shows up.
+     */
+    setAppRoute(key: string, device: string): void {
+        const app = this.app(key);
+        if (!app) {
+            this.pendingRoutes.set(key, device);
+            return;
+        }
+        this.pendingRoutes.delete(key);
+        app.route = device;
+        this.hold(`route:${key}`);
+        this.helper?.send({ cmd: "route", app: key, device });
+        this.notify();
+    }
+
+    /** The route asked for an app that hasn't shown up yet. */
+    pendingRoute(key: string): string | undefined {
+        return this.pendingRoutes.get(key);
+    }
+
     // Ducking (see ducking.ts): sent as they are, no optimistic values; the helper reports the result
 
     duckDb(flow: Flow, db: number): void {
@@ -248,7 +272,13 @@ class SystemAudio {
                 break;
             case "apps":
                 // Keep the optimistic values of apps changed just now
-                this.apps = msg.list.map((a) => (this.isHeld(`app:${a.app}`) ? { ...a, v: this.app(a.app)?.v ?? a.v, muted: this.app(a.app)?.muted ?? a.muted } : a));
+                this.apps = msg.list.map((a) => {
+                    const before = this.app(a.app);
+                    const kept = this.isHeld(`app:${a.app}`) ? { ...a, v: before?.v ?? a.v, muted: before?.muted ?? a.muted } : a;
+                    return this.isHeld(`route:${a.app}`) && before?.route !== undefined ? { ...kept, route: before.route } : kept;
+                });
+                // Routes asked for while these apps had no sound
+                for (const [key, device] of [...this.pendingRoutes]) if (this.app(key)) this.setAppRoute(key, device);
                 for (const a of this.apps) this.seen.set(a.app, a);
                 break;
             case "appicon":

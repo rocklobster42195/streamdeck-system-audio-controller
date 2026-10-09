@@ -80,6 +80,16 @@ Switches the default output device.
 
 The key shows the device with a matching icon (headphones, speakers, monitor) and its name; while it is the default it is "on": a tinted plate and a frame in SA-C's colour. If you give a key a title in Stream Deck, SA-C leaves its own name out (also on the App Mute key). SA-C sets it as the default for everything: music, videos and calls.
 
+### App Output *(key)*
+
+Plays apps on another device, without changing the default: Discord and Teams on the headset, Spotify on the speakers.
+
+- Choose one or more **apps** and a list of **devices** (including **Windows default**).
+- Each press moves the apps to the next device of the list; the key shows it with its name, icon and colour, and a dot per step.
+- Windows keeps the choice for the app. An app that is closed gets it as soon as it plays again.
+
+This uses Windows' own per-app setting ("App volume and device preferences"), through an internal Windows interface, as EarTrumpet does; a big Windows update may change it.
+
 ## Requirements
 
 - Windows 10 or 11
@@ -142,6 +152,7 @@ npm run icons        # action and plugin icons
 npm run sim:output   # all actions against a fake system audio, deckbus checks → sim-out/output/
 npm run sim:apps     # App dials and keys with icons; an app closes and turns grey → sim-out/apps/
 npm run sim:duck     # another plugin ducks the output and an app: permission, restore, "you win" → sim-out/duck/
+npm run sim:app-output # the App Output key: two apps, three devices, each press routes both (fake)
 npm run sim:call     # a call on deckbus (fake Teams call); -- --real waits for a real one and only watches
 npm run sim:players  # media sessions as deckbus players: cover, commands, permission (fake); -- --real reads the real ones, -- --real --control also controls Spotify, -- --real --launch: quit Spotify, Play starts it (never the device volume)
 npm run link -w sac-plugin   # install the dev build into Stream Deck

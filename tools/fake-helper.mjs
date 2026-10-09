@@ -19,8 +19,8 @@ const devices = [
 let defaultId = devices[0].id;
 const ends = { out: { v: 0.42, muted: false }, in: { v: 0.8, muted: false } };
 const apps = [
-    { app: "spotify", name: "Spotify", v: 1, muted: false, active: true },
-    { app: "firefox", name: "Firefox", v: 0.6, muted: false, active: false },
+    { app: "spotify", name: "Spotify", v: 1, muted: false, active: true, route: "" },
+    { app: "firefox", name: "Firefox", v: 0.6, muted: false, active: false, route: "" },
 ];
 const metering = { out: false, in: false };
 let meteredApps = [];
@@ -159,6 +159,12 @@ readline
                 const app = apps.find((a) => a.app === cmd.app);
                 if (app && cmd.cmd === "appvolume") app.v = cmd.v;
                 if (app && cmd.cmd === "appmute") app.muted = cmd.on;
+                out({ t: "apps", list: apps });
+                break;
+            }
+            case "route": {
+                const app = apps.find((a) => a.app === cmd.app);
+                if (app) app.route = cmd.device;
                 out({ t: "apps", list: apps });
                 break;
             }
