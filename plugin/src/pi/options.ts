@@ -2,7 +2,8 @@
 // and the dials' Panorama section.
 import streamDeck from "@elgato/streamdeck";
 import { playerOptions } from "@rocklobster42195/streamdeck-kit";
-import { piBridge } from "@rocklobster42195/streamdeck-kit/bridge";
+import { deckPeers } from "../bus/sac-bus";
+import { registerDiagnostics, piBridge } from "@rocklobster42195/streamdeck-kit/bridge";
 import { sacPlayers } from "../bus/sac-players";
 import { mdiOptions } from "@rocklobster42195/streamdeck-kit/mdi";
 import { WINDOWS_DEFAULT } from "../audio/app-output";
@@ -12,6 +13,8 @@ import { panoramaRows } from "../bus/sac-bus";
 
 export function initPiBridge(): void {
     piBridge.init();
+    // "Diagnostics" in the settings window: the log, a report to copy, the issue page
+    registerDiagnostics(piBridge, { issueUrl: "https://github.com/rocklobster42195/streamdeck-system-audio-controller/issues", peers: deckPeers });
     // The dials' Panorama section (<pi-panorama>): the row's effect, dials and settings
     panoramaRows.attachPi(piBridge);
     // Apps with sound right now; playing ones first
