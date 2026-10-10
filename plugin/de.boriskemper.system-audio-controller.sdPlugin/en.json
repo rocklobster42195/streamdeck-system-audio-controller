@@ -29,6 +29,40 @@
 		},
 		"pi": {
 			"player": "Player",
+
+			"command": "Command",
+
+			"cmd_mute": "Mute / preset",
+
+			"cmd_vol_down": "Quieter",
+
+			"cmd_vol_up": "Louder",
+
+			"cmd_vol_preset": "Preset",
+
+			"vol_step": "Step",
+
+			"preset_volume": "Preset volume",
+
+			"preset_long_press_hint": "Hold the key half a second for this volume.",
+
+			"gauge": "Volume as",
+
+			"gauge_pie": "Pie",
+
+			"gauge_ring": "Ring",
+
+			"gauge_open": "Open ring",
+
+			"show_volume": "Show volume",
+
+			"cmd_next": "Next",
+
+			"cmd_previous": "Previous",
+
+			"cmd_shuffle": "Shuffle",
+
+			"cmd_repeat": "Repeat",
 			"show_player_name": "Player name",
 			"show_player_name_hint": "The player's name on the key",
 			"show_title": "Title",

@@ -144,6 +144,36 @@
                     "Image": "imgs/actions/play-pause-key/key"
                 }
             ]
+        },
+        {
+            "Name": "Playback Control",
+            "UUID": "de.boriskemper.system-audio-controller.playback-control-key",
+            "Icon": "imgs/actions/playback-control-key/icon",
+            "Tooltip": "Next, previous, shuffle or repeat for music on the PC or any other player on the deck.",
+            "PropertyInspectorPath": "ui/playback-control-key.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/playback-control-key/key"
+                }
+            ]
+        },
+        {
+            "Name": "Volume",
+            "UUID": "de.boriskemper.system-audio-controller.volume-key",
+            "Icon": "imgs/actions/volume-key/icon",
+            "Tooltip": "Louder, quieter, mute or a preset for an app on the PC or any other player on the deck.",
+            "PropertyInspectorPath": "ui/volume-key.html",
+            "Controllers": [
+                "Keypad"
+            ],
+            "States": [
+                {
+                    "Image": "imgs/actions/volume-key/key"
+                }
+            ]
         }
     ]
 }

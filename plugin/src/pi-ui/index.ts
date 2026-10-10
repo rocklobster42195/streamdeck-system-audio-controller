@@ -3,10 +3,27 @@
 // with class "pi-win" show only there.
 import { definePiComponents, initChoiceOptions, initConditionalVisibility, initSettingsWindow, sd, settingsWindowShown, translateDom } from "@rocklobster42195/streamdeck-kit/pi";
 import { SacDuckPeers } from "./duck-peers";
-import { mdiChartBar, mdiChartDonut, mdiCircleSlice3, mdiGauge, mdiHorseshoe } from "@mdi/js";
+import { mdiChartBar, mdiChartDonut, mdiCircleSlice3, mdiGauge, mdiHorseshoe, mdiRepeat, mdiShuffleVariant, mdiSkipNext, mdiSkipPrevious, mdiVolumeMedium, mdiVolumeMinus, mdiVolumeOff, mdiVolumePlus } from "@mdi/js";
 
 /** MDI paths for <pi-choice data-options='[{"icon":"…"}]'> tiles. */
-const CHOICE_ICONS: Record<string, string> = { digital: mdiChartBar, classic: mdiGauge, ring: mdiChartDonut, pie: mdiCircleSlice3, open: mdiHorseshoe };
+const CHOICE_ICONS: Record<string, string> = {
+    digital: mdiChartBar,
+    classic: mdiGauge,
+    ring: mdiChartDonut,
+    pie: mdiCircleSlice3,
+    open: mdiHorseshoe,
+    gaugeRing: mdiChartDonut,
+    gaugePie: mdiCircleSlice3,
+    gaugeOpen: mdiHorseshoe,
+    next: mdiSkipNext,
+    previous: mdiSkipPrevious,
+    shuffle: mdiShuffleVariant,
+    repeat: mdiRepeat,
+    volumeUp: mdiVolumePlus,
+    volumeDown: mdiVolumeMinus,
+    volumeOff: mdiVolumeOff,
+    volumeMedium: mdiVolumeMedium,
+};
 
 sd.onReady(() => {
     translateDom();

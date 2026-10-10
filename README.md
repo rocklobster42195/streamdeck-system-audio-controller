@@ -90,6 +90,14 @@ Plays apps on another device, without changing the default: Discord and Teams on
 
 This uses Windows' own per-app setting ("App volume and device preferences"), through an internal Windows interface, as EarTrumpet does; a big Windows update may change it.
 
+### Playback Control *(key)*
+
+Next, previous, shuffle or repeat for music on the PC (Spotify, a browser tab, Media Player …) or any other player on the deck. Without a chosen player it follows the one that started last, apps included. Hold **Next** or **Previous** half a second to seek instead of skipping (5, 10, 15 or 30 seconds per tap; quick taps add up to one jump). Shuffle and repeat show their state; a player that can't do something dims the key.
+
+### Volume *(key)*
+
+Louder, quieter, mute or a preset volume for an app on the PC (its volume in Windows' mixer, never the device volume) or any other player on the deck. The mute key shows the volume as a ring, a pie or an open ring; muted it turns grey with a red speaker. With a preset set, holding Louder, Quieter or Mute half a second jumps to it.
+
 ## Requirements
 
 - Windows 10 or 11

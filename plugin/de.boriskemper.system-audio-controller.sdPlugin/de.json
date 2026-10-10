@@ -29,6 +29,40 @@
 		},
 		"pi": {
 			"player": "Player",
+
+			"command": "Befehl",
+
+			"cmd_mute": "Stumm / Preset",
+
+			"cmd_vol_down": "Leiser",
+
+			"cmd_vol_up": "Lauter",
+
+			"cmd_vol_preset": "Preset",
+
+			"vol_step": "Schritt",
+
+			"preset_volume": "Lautstärke-Preset",
+
+			"preset_long_press_hint": "Taste eine halbe Sekunde halten für diese Lautstärke.",
+
+			"gauge": "Lautstärke als",
+
+			"gauge_pie": "Torte",
+
+			"gauge_ring": "Ring",
+
+			"gauge_open": "Offener Ring",
+
+			"show_volume": "Lautstärke anzeigen",
+
+			"cmd_next": "Weiter",
+
+			"cmd_previous": "Zurück",
+
+			"cmd_shuffle": "Zufall",
+
+			"cmd_repeat": "Wiederholen",
 			"show_player_name": "Playername",
 			"show_player_name_hint": "Name des Players auf der Taste",
 			"show_title": "Titel",
