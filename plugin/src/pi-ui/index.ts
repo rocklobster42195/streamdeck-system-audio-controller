@@ -42,4 +42,4 @@ sd.onReady(() => {
     settingsWindowShown();
 });
 
-initSettingsWindow({ name: "SA-C" });
+initSettingsWindow({ name: "SA-C", helpUrl: "https://github.com/rocklobster42195/streamdeck-system-audio-controller" });
