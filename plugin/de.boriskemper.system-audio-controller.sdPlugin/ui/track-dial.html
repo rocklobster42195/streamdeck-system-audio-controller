@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Track</title>
+  <link rel="stylesheet" href="pi-theme.css" />
+  <link rel="stylesheet" href="sac.css" />
+  <script src="locales.generated.js"></script>
+  <script src="pi.js"></script>
+</head>
+
+<body hidden>
+  <pi-section title="pi.player">
+    <pi-select setting="player" source="players" placeholder="kit.player_active_all"></pi-select>
+  </pi-section>
+
+  <pi-section title="pi.look">
+    <pi-choice setting="look" default="info" columns="2" data-options='[
+      {"value":"info","label":"pi.look_track_info","icon":"trackInfo"},
+      {"value":"eq","label":"pi.look_eq","icon":"eq"}
+    ]'></pi-choice>
+    <pi-toggle setting="showTitle" label="pi.show_title" data-default="true"></pi-toggle>
+  </pi-section>
+
+  <pi-section class="pi-win" title="pi.cover_side">
+    <pi-choice setting="coverSide" default="right" columns="2" data-options='[
+      {"value":"left","label":"pi.cover_left","icon":"alignLeft"},
+      {"value":"right","label":"pi.cover_right","icon":"alignRight"}
+    ]'></pi-choice>
+  </pi-section>
+
+  <pi-section class="pi-win" title="kit.seek_step">
+    <pi-choice setting="seekStep" columns="4" default="10" data-options='[
+      {"value":"5","label":"5 s"},
+      {"value":"10","label":"10 s"},
+      {"value":"15","label":"15 s"},
+      {"value":"30","label":"30 s"}
+    ]'></pi-choice>
+    <div class="pi-hint" data-i18n="kit.seek_step_hint"></div>
+  </pi-section>
+
+  <pi-panorama class="pi-win"></pi-panorama>
+  <pi-panorama class="pi-pi-only" summary></pi-panorama>
+
+  <pi-more></pi-more>
+
+  <div class="pi-footer"><span data-plugin-version>SA-C</span></div>
+</body>
+
+</html>

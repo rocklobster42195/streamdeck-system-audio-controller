@@ -90,6 +90,18 @@ Plays apps on another device, without changing the default: Discord and Teams on
 
 This uses Windows' own per-app setting ("App volume and device preferences"), through an internal Windows interface, as EarTrumpet does; a big Windows update may change it.
 
+### Track *(dial)*
+
+Cover, title, artist and progress of the music on the PC (Spotify, a browser tab, Media Player …) or any other player on the deck; without a chosen player it follows the one that started last, apps included.
+
+| Control | What it does |
+|---|---|
+| Rotate | Seek (5, 10, 15 or 30 seconds per step) |
+| Push | Next track |
+| Tap the display | Play / pause |
+
+The look is track info (text low, a bar at the bottom, "LIVE" for a stream) or the equalizer; the cover sits on the right or the left. In a row with a Panorama effect the dial shows the effect behind the text.
+
 ### Playback Control *(key)*
 
 Next, previous, shuffle or repeat for music on the PC (Spotify, a browser tab, Media Player …) or any other player on the deck. Without a chosen player it follows the one that started last, apps included. Hold **Next** or **Previous** half a second to seek instead of skipping (5, 10, 15 or 30 seconds per tap; quick taps add up to one jump). Shuffle and repeat show their state; a player that can't do something dims the key.

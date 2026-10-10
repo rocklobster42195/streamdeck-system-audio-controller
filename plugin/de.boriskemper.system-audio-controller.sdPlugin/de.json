@@ -9,6 +9,10 @@
 		"Mute": "Stumm",
 		"key": {
 			"starting": "Startet…",
+
+			"nothing_playing": "Nichts läuft",
+
+			"track": "Titel",
 			"starting_hint": "Verbinde mit Windows-Audio",
 			"failed": "Audio nicht verfügbar",
 			"failed_hint": "Helfer beendet, neuer Versuch",
@@ -29,6 +33,18 @@
 		},
 		"pi": {
 			"player": "Player",
+
+			"look": "Darstellung",
+
+			"look_track_info": "Titelinfo",
+
+			"look_eq": "Equalizer",
+
+			"cover_side": "Cover",
+
+			"cover_left": "Links",
+
+			"cover_right": "Rechts",
 
 			"command": "Befehl",
 

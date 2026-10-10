@@ -9,6 +9,10 @@
 		"Mute": "Mute",
 		"key": {
 			"starting": "Starting…",
+
+			"nothing_playing": "Nothing playing",
+
+			"track": "Track",
 			"starting_hint": "Connecting to Windows audio",
 			"failed": "Audio not available",
 			"failed_hint": "Helper stopped, retrying",
@@ -29,6 +33,18 @@
 		},
 		"pi": {
 			"player": "Player",
+
+			"look": "Look",
+
+			"look_track_info": "Track info",
+
+			"look_eq": "Equalizer",
+
+			"cover_side": "Cover",
+
+			"cover_left": "Left",
+
+			"cover_right": "Right",
 
 			"command": "Command",
 
