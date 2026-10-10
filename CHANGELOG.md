@@ -5,6 +5,7 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 ## [Unreleased]
 
 ### Fixed
+- **Fixed: A new cover's colour reached the Panorama late: the colour fade took four seconds instead of one (kit 0.1.0-alpha.23).**
 - **Fixed: a dial in a shared Panorama stayed black** after its plugin (or another one in the row) restarted, until the plugin leading the row restarted too (kit 0.1.0-alpha.7).
 
 ### Added
