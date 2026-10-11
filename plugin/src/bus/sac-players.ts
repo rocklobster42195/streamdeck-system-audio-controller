@@ -17,7 +17,10 @@ const MEDIA: readonly MediaCommand[] = ["play-pause", "play", "pause", "next", "
 type Covers = { url(key: string | undefined): string | undefined; rgb(key: string | undefined): [number, number, number] | undefined };
 
 /** Per session: whether it played last time, and when it last started (0: not since SA-C saw it). */
-export type Starts = Map<string, { playing: boolean; since: number }>;
+export type Starts = Map<string, { playing: boolean; since: number; silentSince?: number }>;
+
+/** A skip is silent for a moment: the session still says "playing", the app has no sound. It keeps showing playing this long. */
+export const SKIP_GRACE_MS = 2500;
 
 /** The players for the sessions; `starts` is kept up to date here. */
 export function mediaPlayers(media: readonly MediaSession[], apps: readonly AppInfo[], covers: Covers, starts: Starts, now = Date.now()): PlayerEntry[] {
@@ -29,8 +32,16 @@ export function mediaPlayers(media: readonly MediaSession[], apps: readonly AppI
         // on other speakers (it even shows the next track early, seen 2026-10-09 with Music
         // Assistant) or a muted tab says "playing" without a sound on this computer, and would
         // otherwise become the active player (the Panorama's colour)
-        const playing = m.status === "playing" && audio?.active === true;
         const start = starts.get(m.id) ?? { playing: false, since: 0 };
+        let playing = m.status === "playing" && audio?.active === true;
+        // Between two tracks the app is silent for a moment while its session says "playing": a skip
+        // must not look like a pause. Only for something that did play, and only for a short while
+        if (!playing && m.status === "playing" && start.playing && audio) {
+            start.silentSince ??= now;
+            if (now - start.silentSince < SKIP_GRACE_MS) playing = true;
+        } else {
+            start.silentSince = undefined;
+        }
         if (playing && !start.playing) start.since = now;
         start.playing = playing;
         starts.set(m.id, start);
@@ -76,8 +87,13 @@ const START_WAIT_MS = 20_000;
 const starts: Starts = new Map();
 const memory = new MediaMemory();
 
+let graceTimer: ReturnType<typeof setTimeout> | undefined;
+
 function publish(): void {
     const live = mediaPlayers(systemAudio.media, systemAudio.apps, systemAudio.covers, starts);
+    // A session in its skip grace has nothing else to say when it ends: look again then
+    clearTimeout(graceTimer);
+    if ([...starts.values()].some((s) => s.silentSince !== undefined)) graceTimer = setTimeout(publish, SKIP_GRACE_MS + 100);
     if (systemAudio.state === "unsupported") return sacPlayers.publish(live.map(withSource));
     memory.seen(live.map((p) => ({ player: p.player, app: p.app!, name: p.name, path: systemAudio.app(p.app)?.path, since: p.since })));
     sacPlayers.publish([...live, ...closedPlayers(memory.all(), live)].map(withSource));

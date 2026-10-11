@@ -55,6 +55,21 @@ describe("media sessions as players", () => {
         expect(mediaPlayers([spotify], [], covers, new Map(), 5000)[0]).toMatchObject({ playing: false, since: 0 });
     });
 
+    it("keeps a skip from looking like a pause: silent for a moment while the session says playing", () => {
+        const starts: Starts = new Map();
+        const quiet = [{ ...apps[0], active: false }];
+        expect(mediaPlayers([spotify], apps, covers, starts, 5000)[0].playing).toBe(true);
+        // The app has no sound for a moment between two tracks
+        expect(mediaPlayers([spotify], quiet, covers, starts, 6000)[0]).toMatchObject({ playing: true, since: 5000 });
+        expect(mediaPlayers([spotify], quiet, covers, starts, 7000)[0].playing).toBe(true);
+        // ... but not for ever
+        expect(mediaPlayers([spotify], quiet, covers, starts, 9000)[0].playing).toBe(false);
+        // A real pause shows at once
+        const again: Starts = new Map();
+        mediaPlayers([spotify], apps, covers, again, 5000);
+        expect(mediaPlayers([{ ...spotify, status: "paused" }], quiet, covers, again, 5100)[0].playing).toBe(false);
+    });
+
     it("offers no volume for a session whose app has no sound", () => {
         const [p] = mediaPlayers([spotify], [], covers, new Map(), 5000);
         expect(p.volume).toBeUndefined();
