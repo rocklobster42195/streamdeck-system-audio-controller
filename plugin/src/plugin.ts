@@ -1,5 +1,5 @@
 import streamDeck from "@elgato/streamdeck";
-import { setKitLogger } from "@rocklobster42195/streamdeck-kit";
+import { configureCoverCache, coverResizer, setKitLogger } from "@rocklobster42195/streamdeck-kit";
 import { AppDial } from "./actions/app-dial";
 import { AppKey } from "./actions/app-key";
 import { DeviceKey } from "./actions/device-key";
@@ -17,6 +17,8 @@ import { initPiBridge } from "./pi/options";
 
 streamDeck.logger.setLevel("info");
 setKitLogger(streamDeck.logger);
+// A cover as served may be 640 px and 200 KB; keys and strips need a quarter of that
+configureCoverCache({ resize: coverResizer(256) });
 
 streamDeck.actions.registerAction(new OutputDial());
 streamDeck.actions.registerAction(new AppDial());
