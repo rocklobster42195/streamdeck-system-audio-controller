@@ -1,7 +1,7 @@
 // Animated README pictures from the simulator: the real plugin against a fake system audio
 // (tools/fake-helper.mjs, invented music on the meters), one GIF frame for every picture the plugin
 // sends. Does not touch the real system audio.
-//   node tools/sd-sim/readme-gifs.mjs [scene]      scenes: output-looks, apps
+//   node tools/sd-sim/readme-gifs.mjs [scene]      scenes: output-looks
 // Writes docs/screenshots/<scene>.gif.
 import fs from "node:fs";
 import path from "node:path";
@@ -110,21 +110,11 @@ async function turn(sim, dials) {
 }
 
 const scenes = {
-    // The four meter looks of the Output dial, side by side
+    // The Output dial in Digital, Classic VU, Open ring and Pie, side by side, turned down and up again
     async "output-looks"(sim) {
-        const dials = ["digital", "classic", "ring", "pie"].map((style, c) => dial(sim, "output-dial", { style }, c));
+        const dials = ["digital", "classic", "open", "pie"].map((style, c) => dial(sim, "output-dial", { style }, c));
         await sim.sleep(2500);
         await record(path.join(OUT, "output-looks.gif"), dials.map((c) => sim.state.slots.get(c)), () => turn(sim, dials));
-    },
-    // The Output dial as a horseshoe and two apps, each with its own level
-    async apps(sim) {
-        const dials = [
-            dial(sim, "output-dial", { style: "open" }, 0),
-            dial(sim, "app-dial", { app: "spotify", appName: "Spotify" }, 1),
-            dial(sim, "app-dial", { app: "firefox", appName: "Firefox", style: "ring" }, 2),
-        ];
-        await sim.sleep(2500);
-        await record(path.join(OUT, "apps.gif"), dials.map((c) => sim.state.slots.get(c)), () => turn(sim, dials));
     },
 };
 

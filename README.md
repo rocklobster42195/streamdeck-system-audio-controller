@@ -10,15 +10,11 @@ Your computer's sound on your Stream Deck: the volume with a live level meter, e
 
 ## In action
 
-The Output dial in its four meter looks (Digital, Classic VU, Ring and Pie), with a Panorama effect behind them:
+The Output dial in four of its looks (Digital, Classic VU, Open ring and Pie), turned down and up again: the volume and the level of the music follow it. A Panorama effect runs behind the dials.
 
-<img src="docs/screenshots/output-looks.gif" width="800" alt="The Output dial in four looks: Digital, Classic VU meters, Ring and Pie, with the level of the music moving"/>
+<img src="docs/screenshots/output-looks.gif" width="800" alt="The Output dial in four looks: Digital, Classic VU meters, Open ring and Pie, turned down and up again while the music plays"/>
 
-The Output dial as a horseshoe, next to the App dial of Spotify and Firefox: each app has its own level:
-
-<img src="docs/screenshots/apps.gif" width="600" alt="The Output dial as a horseshoe and App dials for Spotify and Firefox, each with its own level"/>
-
-The pictures come from the simulator with invented music and an invented system audio (`node tools/sd-sim/readme-gifs.mjs`).
+The picture comes from the simulator with invented music and an invented system audio (`node tools/sd-sim/readme-gifs.mjs`).
 
 ## Contents
 
