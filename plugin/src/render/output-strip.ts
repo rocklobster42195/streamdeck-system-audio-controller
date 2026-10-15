@@ -35,6 +35,12 @@ export const ACCENT = "#E14190";
 const MUTED = "#ff5a5a";
 const INK_GREY = "#8a8a90";
 
+/** A Material Design Icon path as an image the level strip can place in a ring (a data URI). */
+export function mdiIconUri(path: string, color = "#d0d0d6"): string {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="${color}" d="${path}"/></svg>`;
+    return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+}
+
 export const percent = (v: number | undefined) => (v === undefined ? "–" : `${Math.round(v * 100)} %`);
 
 export function renderOutputStrip(v: OutputView): string {

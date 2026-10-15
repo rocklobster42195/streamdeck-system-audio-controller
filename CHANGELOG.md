@@ -10,6 +10,7 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 - **Fixed: a dial in a shared Panorama stayed black** after its plugin (or another one in the row) restarted, until the plugin leading the row restarted too (kit 0.1.0-alpha.7).
 
 ### Added
+- **The Output dial shows its device's kind** (headphones, speakers, a monitor's speakers) as an icon in the middle of the Ring, Pie and Open ring, as the App dial shows its app.
 - **Play/Pause key: double tap = next, triple tap = previous** (switch it on in the key's settings; the tap speed is adjustable). A single tap then waits a moment before it plays or pauses; with it off the key reacts at once.
 - **Diagnostics in the settings window:** a collapsed field at the end with the end of the plugin's log (warnings and errors marked, a filter), a small copy icon at the top right that copies a report (versions of the plugin, Stream Deck and the other plugins, then the log; tokens, passwords and e-mail addresses hidden), "Show log file" (opens the file manager) and "Report an issue" (copies the report and opens the issue page).
 - **Loading and failed commands show in the corner** of the Play/Pause, Playback Control and Volume keys and the Track dial: an hourglass at the bottom left while a command takes a while, a red mark for a few seconds when it was refused (the family's status badge, from the kit).
