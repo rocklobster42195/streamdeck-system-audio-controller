@@ -1,0 +1,25 @@
+name: Feature request
+description: Suggest a new action, option or improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What do you want to do?
+      description: Describe the situation, not only the solution ("When a call starts, I want ...").
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea
+      description: How could SA-C help? Which key or dial, what should it show, what should pressing or rotating do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: How do you do it today? Anything similar in another plugin?

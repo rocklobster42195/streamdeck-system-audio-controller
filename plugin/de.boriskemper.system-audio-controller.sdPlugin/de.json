@@ -15,7 +15,7 @@
 			"track": "Titel",
 			"starting_hint": "Verbinde mit Windows-Audio",
 			"failed": "Audio nicht verfügbar",
-			"failed_hint": "Helfer beendet, neuer Versuch",
+			"failed_hint": "Helfer läuft nicht. Siehe README.",
 			"unsupported": "Nur Windows",
 			"unsupported_hint": "macOS folgt später",
 			"no_device": "Kein Ausgabegerät",
@@ -84,6 +84,7 @@
 			"show_title": "Titel",
 			"show_title_hint": "Titel und Interpret laufen über die Taste",
 			"show_progress": "Fortschritt",
+			"tapping": "Tippen",
 			"show_progress_hint": "Balken in der Farbe des Covers",
 			"app_output_help": "Drücken: Die Apps spielen auf dem nächsten Gerät der Liste (z. B. Headset → Lautsprecher → Windows-Standard). Windows merkt es sich für die App; eine geschlossene App bekommt es beim Start.",
 			"output_apps": "Apps",
@@ -117,7 +118,7 @@
 			"duck": "Andere Plugins",
 			"duck_none": "Gerade ist kein anderes Plugin auf deckbus.",
 			"duck_away": "Läuft gerade nicht",
-			"duck_hint": "Hier eingeschaltete Plugins dürfen die Lautstärke deines Computers kurz absenken, z. B. MA-C während einer Durchsage. SA-C stellt sie danach wieder her; änderst du sie in der Zwischenzeit, bleibt deine."
+			"duck_hint": "Hier eingeschaltete Plugins dürfen die Lautstärke deines Computers kurz absenken, z. B. Music Assistant Controller während einer Durchsage. SA-C stellt sie danach wieder her; änderst du sie in der Zwischenzeit, bleibt deine."
 		},
 		"App": "App",
 		"One app's volume on a dial (Spotify, Firefox, …), with its level.": "Die Lautstärke einer App auf einem Dial (Spotify, Firefox, …), mit ihrem Pegel.",

@@ -1,0 +1,47 @@
+name: Release
+
+# Triggered by tools/release.mjs (gh release create). Builds the plugin from the tag and attaches
+# the versioned .streamDeckPlugin — beta tags end up on a GitHub pre-release.
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run lint
+      - run: npm run validate -w sac-plugin
+
+      - name: Check tag matches manifest version
+        run: |
+          V=$(node -p "require('./plugin/de.boriskemper.system-audio-controller.sdPlugin/manifest.json').Version")
+          IFS=. read -r A B C D <<< "$V"
+          if [ "$D" = "0" ]; then EXPECTED="v$A.$B.$C"; else EXPECTED="v$A.$B.$C-beta.$D"; fi
+          if [ "$EXPECTED" != "${{ github.event.release.tag_name }}" ]; then
+            echo "::error::Tag ${{ github.event.release.tag_name }} does not match manifest version $V ($EXPECTED)"; exit 1
+          fi
+
+      - name: Pack plugin
+        # versioned file name (stable and beta downloads can't collide), without the debug port
+        run: node tools/pack.mjs "${{ github.event.release.tag_name }}"
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: release/*.streamDeckPlugin

@@ -15,7 +15,7 @@
 			"track": "Track",
 			"starting_hint": "Connecting to Windows audio",
 			"failed": "Audio not available",
-			"failed_hint": "Helper stopped, retrying",
+			"failed_hint": "Helper not running. See README.",
 			"unsupported": "Windows only",
 			"unsupported_hint": "macOS comes later",
 			"no_device": "No output device",
@@ -84,6 +84,7 @@
 			"show_title": "Title",
 			"show_title_hint": "Title and artist scroll across the key",
 			"show_progress": "Progress",
+			"tapping": "Tapping",
 			"show_progress_hint": "A bar in the cover's colour",
 			"app_output_help": "Press: the apps play on the next device of the list (e.g. headset → speakers → Windows default). Windows keeps it for the app; an app that is closed gets it when it starts.",
 			"output_apps": "Apps",
@@ -117,7 +118,7 @@
 			"duck": "Other plugins",
 			"duck_none": "No other plugin on deckbus right now.",
 			"duck_away": "Not running right now",
-			"duck_hint": "Plugins switched on here may lower your computer's volume for a moment, e.g. MA-C during an announcement. SA-C puts the volume back afterwards; if you change it in the meantime, yours stays."
+			"duck_hint": "Plugins switched on here may lower your computer's volume for a moment, e.g. Music Assistant Controller during an announcement. SA-C puts the volume back afterwards; if you change it in the meantime, yours stays."
 		},
 		"App": "App",
 		"One app's volume on a dial (Spotify, Firefox, …), with its level.": "One app's volume on a dial (Spotify, Firefox, …), with its level.",

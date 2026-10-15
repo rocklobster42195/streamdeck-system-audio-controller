@@ -1,0 +1,98 @@
+name: Bug report
+description: Something in SA-C doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this! SA-C is an independent project.
+        **If the keys and dials show "Audio not available":** that is the Windows helper (a PowerShell script that compiles a few C# files) not running. Please read the [Troubleshooting](https://github.com/rocklobster42195/streamdeck-system-audio-controller#troubleshooting) section first, and include the plugin log below: it contains the helper's error.
+        ⚠️ Remove private names and anything you don't want public from logs and screenshots.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you start
+      options:
+        - label: I'm using the latest SA-C version.
+          required: true
+        - label: I searched the existing issues and this isn't a duplicate.
+          required: true
+
+  - type: dropdown
+    id: action
+    attributes:
+      label: Affected action
+      multiple: true
+      options:
+        - Output (dial)
+        - App (dial)
+        - Track (dial)
+        - App Mute (key)
+        - Microphone (key)
+        - Output Device (key)
+        - App Output (key)
+        - Play/Pause (key)
+        - Playback Control (key)
+        - Volume (key)
+        - Panorama / Other plugins
+        - Settings panel
+        - The helper does not start ("Audio not available")
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Put an App dial on the Stream Deck +
+        2. Choose Spotify
+        3. Close Spotify and open it again...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Plugin log
+      description: |
+        Easiest: open the settings window of an Output or App dial and use **Diagnostics** at the end: the copy icon copies a report with versions and the end of the log.
+        Or the files: `%APPDATA%\Elgato\StreamDeck\Plugins\de.boriskemper.system-audio-controller.sdPlugin\logs\`
+        Paste the part around the time of the problem.
+      render: text
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      value: |
+        - SA-C version:
+        - Stream Deck app version:
+        - Stream Deck model (e.g. Stream Deck +, MK.2, XL):
+        - Windows version (e.g. 11 23H2):
+        - Company or managed PC (PowerShell restricted)? Security software that may block scripts:
+        - Other Stream Deck plugins running (Sonos Controller, Music Assistant Controller ...):
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or video
+      description: A photo of the key or touch strip often says more than words.

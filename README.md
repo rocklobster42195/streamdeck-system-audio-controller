@@ -1,10 +1,12 @@
 # SA-C — System Audio Controller for Stream Deck
 
-Your computer's sound on your Stream Deck: the volume with a live level meter, each app's volume (Spotify, Firefox, Discord, …), a mic mute key, and a key to switch between headphones and speakers. SA-C also shares that level with other Stream Deck plugins through **deckbus**, so, for example, the Panorama of [MA-C (Music Assistant Controller)](https://github.com/rocklobster42195/streamdeck-music-assistant-controller) can move with the music on your PC.
+Your computer's sound on your Stream Deck: the volume with a live level meter, each app's volume (Spotify, Firefox, Discord, …), a mic mute key, and a key to switch between headphones and speakers. SA-C also shares that level with other Stream Deck plugins through **deckbus**, so, for example, the Panorama of [Music Assistant Controller](https://github.com/rocklobster42195/streamdeck-music-assistant-controller) can move with the music on your PC.
 
 > Unofficial community plugin. Not affiliated with Elgato or Microsoft.
 
-**Status:** early. Windows only for now; macOS is planned.
+**Status:** early, available as a [beta](../../releases). Windows only for now; macOS is planned.
+
+> **⚠️ Before you install: SA-C needs a small Windows helper to run.** To reach Windows' audio system it starts a PowerShell script once that compiles a few C# files (they are plain text in the plugin folder, nothing is installed, nothing goes to the internet). **On company or managed PCs, or with security software that blocks PowerShell scripts or compiling C#, the helper can't start, and SA-C then can't work.** Keys and dials show **"Audio not available"** in that case. See [How it works](#how-it-works) and [Troubleshooting](#troubleshooting).
 
 ## Contents
 
@@ -59,7 +61,7 @@ The dial's settings panel stays short: what it controls and how it looks. **More
 
 ### Panorama behind the dials
 
-An effect (particles, matrix rain, Boing ball, Boing globe) can run behind the dials, across all displays of the deck like one picture, also behind the dials of other plugins of the family ([MA-C](https://github.com/rocklobster42195/streamdeck-music-assistant-controller), X-Air Controller, HA-C). In the settings window under **Panorama**, choose the effect for the whole row of dials, untick the dials that shouldn't show it (the effect runs on behind them), and set its speed or density once for the row. Only the text and the meters get a dark backing, so the effect stays visible around them.
+An effect (particles, matrix rain, Boing ball, Boing globe) can run behind the dials, across all displays of the deck like one picture, also behind the dials of other plugins of the family ([Music Assistant Controller](https://github.com/rocklobster42195/streamdeck-music-assistant-controller), X-Air Controller, Home Assistant Controller). In the settings window under **Panorama**, choose the effect for the whole row of dials, untick the dials that shouldn't show it (the effect runs on behind them), and set its speed or density once for the row. Only the text and the meters get a dark backing, so the effect stays visible around them.
 
 ### App Mute *(key)*
 
@@ -102,6 +104,10 @@ Cover, title, artist and progress of the music on the PC (Spotify, a browser tab
 
 The look is track info (text low, a bar at the bottom, "LIVE" for a stream) or the equalizer; the cover sits on the right or the left. In a row with a Panorama effect the dial shows the effect behind the text.
 
+### Play / Pause *(key)*
+
+Plays or pauses music on the PC (Spotify, a browser tab, Media Player …) or any other player on the deck; without a chosen player the one that started last, apps included. The key shows the cover, dimmed with a play symbol while paused, and optionally the title and a progress bar. Two corners show an icon of your own, the app or the service. With **Double and triple tap** switched on (off by default), two taps skip to the next track and three go back to the previous one; a single tap then waits a moment before it plays or pauses, and **Tap speed** sets how quickly the taps must follow each other.
+
 ### Playback Control *(key)*
 
 Next, previous, shuffle or repeat for music on the PC (Spotify, a browser tab, Media Player …) or any other player on the deck. Without a chosen player it follows the one that started last, apps included. Hold **Next** or **Previous** half a second to seek instead of skipping (5, 10, 15 or 30 seconds per tap; quick taps add up to one jump). Shuffle and repeat show their state; a player that can't do something dims the key.
@@ -125,15 +131,15 @@ SA-C talks to other Stream Deck plugins on your computer through **deckbus**, a 
 - whether the mic is muted, and which apps use it now (`mic`), so other plugins could show it;
 - whether the computer is in a **call** (`call`: Teams, Discord, Zoom … with the app), so other plugins can pause or lower music during it; from Windows' own call detection, else a known call app using the mic;
 - levels, each sent only while another plugin actually uses it:
-  - your computer's output as `meters/system-output` (e.g. MA-C's Panorama with **Audio source** set to your output device);
-  - the mic as `meters/system-input` (marked as an input, so MA-C's Panorama doesn't list it);
-  - every app with sound, e.g. `meters/app-spotify`, so MA-C's Panorama can move with Spotify only (not Windows' system sounds).
+  - your computer's output as `meters/system-output` (e.g. Music Assistant Controller's Panorama with **Audio source** set to your output device);
+  - the mic as `meters/system-input` (marked as an input, so Music Assistant Controller's Panorama doesn't list it);
+  - every app with sound, e.g. `meters/app-spotify`, so Music Assistant Controller's Panorama can move with Spotify only (not Windows' system sounds).
 
-- the music playing on your computer as **players** (`players`): Spotify, a browser tab, Media Player … with title, cover and position. Sonos Controller's and MA-C's media keys can control them (play/pause, next, seek, volume = the app's volume). Covers are served to the other plugins on `127.0.0.1` only. When you quit the app, its player stays as closed, and Play on another plugin's key starts the app and plays. Another plugin's keys may do this by default, like a remote; the global setting `othersMayControlPlayers: false` switches it off.
+- the music playing on your computer as **players** (`players`): Spotify, a browser tab, Media Player … with title, cover and position. Sonos Controller's and Music Assistant Controller's media keys can control them (play/pause, next, seek, volume = the app's volume). Covers are served to the other plugins on `127.0.0.1` only. When you quit the app, its player stays as closed, and Play on another plugin's key starts the app and plays. Another plugin's keys may do this by default, like a remote; the global setting `othersMayControlPlayers: false` switches it off.
 
 **Uses:** the Panorama of the other plugins' dials in the same row: one effect across all of them (state `panorama-rows`; the plugin with the leftmost dial computes it).
 
-**Only with your permission:** lowering the volume for a moment (*ducking*), e.g. MA-C during an announcement. Nobody may by default. Switch it on per plugin under **Other plugins**: in the settings window of an Output or App dial, or in the settings of an App Mute key (the list shows the plugins on deckbus right now).
+**Only with your permission:** lowering the volume for a moment (*ducking*), e.g. Music Assistant Controller during an announcement. Nobody may by default. Switch it on per plugin under **Other plugins**: in the settings window of an Output or App dial, or in the settings of an App Mute key (the list shows the plugins on deckbus right now).
 
 - A plugin can lower your output device or one app (by a few dB, for at most a few minutes).
 - Afterwards SA-C puts back exactly the volume from before, also when that plugin stops or you switch its permission off.
@@ -153,7 +159,7 @@ Node.js, which Stream Deck plugins run on, can't reach the Windows audio system 
 
 ## Troubleshooting
 
-- **"Audio not available"**: the helper stopped. SA-C restarts it by itself. If it stays, look at the plugin log (`logs/` in the plugin folder). Some company PCs block PowerShell scripts or compiling C# (`Add-Type`); then SA-C can't work there.
+- **"Audio not available"**: the helper isn't running. SA-C restarts it by itself, so a short message right after the start is normal. If it stays: (1) open the settings window of an Output or App dial and use **Diagnostics** at the end (the copy icon copies a report with the end of the log, which contains the helper's error); (2) on a company PC, ask whether PowerShell scripts and compiling C# (`Add-Type`) are allowed; (3) check that your security software hasn't blocked or quarantined files in the plugin's `helper/` folder; (4) [open an issue](../../issues/new/choose) with the report. Some company PCs block PowerShell scripts or compiling C#; then SA-C can't work there.
 - **"No output device"**: Windows has no active output device. Plug in speakers or headphones, or choose one in the Windows sound settings.
 - **The meter doesn't move**: nothing is playing, or the app plays to a device that isn't the default.
 - **An app is missing from the App list**: it hasn't played sound yet since it started. Play something, then open the list again.
