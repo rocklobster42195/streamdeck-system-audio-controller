@@ -22,6 +22,8 @@ fs.mkdirSync(OUT, { recursive: true });
 const SCALE = 1;
 /** At most this many frames a second: the meters move 20 times a second, a README GIF doesn't need that. */
 const MIN_FRAME_MS = 80;
+/** How many of the last frames blend into the first, for a loop without a jump. */
+const FADE_FRAMES = 7;
 const GAP = 4;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -70,6 +72,16 @@ async function record(file, slots, during) {
     await during();
     running = false;
     await sampler;
+    // A loop without a jump: the last frames blend into the first one
+    const k = Math.min(FADE_FRAMES, Math.floor(frames.length / 2));
+    const first = frames[0].raw;
+    for (let i = 0; i < k; i++) {
+        const f = frames[frames.length - k + i];
+        const t = (i + 1) / k;
+        const mixed = Buffer.alloc(f.raw.length);
+        for (let b = 0; b < mixed.length; b++) mixed[b] = Math.round(f.raw[b] * (1 - t) + first[b] * t);
+        f.raw = mixed;
+    }
     const enc = new GIFEncoder(total, h, "neuquant", true, frames.length);
     enc.setRepeat(0);
     enc.setQuality(20);
@@ -86,14 +98,23 @@ async function record(file, slots, during) {
 
 const dial = (sim, suffix, settings, column) => sim.add(suffix, settings, { column, controller: "Encoder" });
 
+/** Turns every dial down a few clicks and back up again, so the volume (and the level that follows it) visibly moves and the loop closes. */
+async function turn(sim, dials) {
+    await sleep(600);
+    // One click is about 8 % here: down 5 clicks (no stop at 0) and up 5 again, so the volume ends where it began
+    for (const ticks of [-2, -2, -1, 1, 2, 2]) {
+        for (const d of dials) sim.rotate(d, ticks);
+        await sleep(450);
+    }
+    await sleep(700);
+}
+
 const scenes = {
     // The four meter looks of the Output dial, side by side
     async "output-looks"(sim) {
         const dials = ["digital", "classic", "ring", "pie"].map((style, c) => dial(sim, "output-dial", { style }, c));
         await sim.sleep(2500);
-        await record(path.join(OUT, "output-looks.gif"), dials.map((c) => sim.state.slots.get(c)), async () => {
-            await sleep(3500);
-        });
+        await record(path.join(OUT, "output-looks.gif"), dials.map((c) => sim.state.slots.get(c)), () => turn(sim, dials));
     },
     // The Output dial as a horseshoe and two apps, each with its own level
     async apps(sim) {
@@ -103,9 +124,7 @@ const scenes = {
             dial(sim, "app-dial", { app: "firefox", appName: "Firefox", style: "ring" }, 2),
         ];
         await sim.sleep(2500);
-        await record(path.join(OUT, "apps.gif"), dials.map((c) => sim.state.slots.get(c)), async () => {
-            await sleep(3500);
-        });
+        await record(path.join(OUT, "apps.gif"), dials.map((c) => sim.state.slots.get(c)), () => turn(sim, dials));
     },
 };
 
