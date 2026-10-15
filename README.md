@@ -10,9 +10,9 @@ Your computer's sound on your Stream Deck: the volume with a live level meter, e
 
 ## In action
 
-The Output dial in four of its looks (Digital, Classic VU, Open ring and Pie), turned down and up again: the volume and the level of the music follow it. A Panorama effect runs behind the dials.
+The Output dial in four of its looks (Digital, Classic VU, Open ring and Pie), turned down and up again: the volume and the level of the music follow it. The Open ring and the Pie show the kind of the output device as an icon (headphones, speakers, a monitor's speakers): in the gap at the bottom of the open ring, in the middle of the pie. A Panorama effect runs behind the dials.
 
-<img src="docs/screenshots/output-looks.gif" width="800" alt="The Output dial in four looks: Digital, Classic VU meters, Open ring and Pie, turned down and up again while the music plays"/>
+<img src="docs/screenshots/output-looks.gif" width="800" alt="The Output dial in four looks: Digital, Classic VU meters, Open ring and Pie with a speaker icon, turned down and up again while the music plays"/>
 
 The picture comes from the simulator with invented music and an invented system audio (`node tools/sd-sim/readme-gifs.mjs`).
 
