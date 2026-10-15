@@ -8,6 +8,18 @@ Your computer's sound on your Stream Deck: the volume with a live level meter, e
 
 > **⚠️ Before you install: SA-C needs a small Windows helper to run.** To reach Windows' audio system it starts a PowerShell script once that compiles a few C# files (they are plain text in the plugin folder, nothing is installed, nothing goes to the internet). **On company or managed PCs, or with security software that blocks PowerShell scripts or compiling C#, the helper can't start, and SA-C then can't work.** Keys and dials show **"Audio not available"** in that case. See [How it works](#how-it-works) and [Troubleshooting](#troubleshooting).
 
+## In action
+
+The Output dial in its four meter looks (Digital, Classic VU, Ring and Pie), with a Panorama effect behind them:
+
+<img src="docs/screenshots/output-looks.gif" width="800" alt="The Output dial in four looks: Digital, Classic VU meters, Ring and Pie, with the level of the music moving"/>
+
+The Output dial as a horseshoe, next to the App dial of Spotify and Firefox: each app has its own level:
+
+<img src="docs/screenshots/apps.gif" width="600" alt="The Output dial as a horseshoe and App dials for Spotify and Firefox, each with its own level"/>
+
+The pictures come from the simulator with invented music and an invented system audio (`node tools/sd-sim/readme-gifs.mjs`).
+
 ## Contents
 
 - [Actions](#actions)
