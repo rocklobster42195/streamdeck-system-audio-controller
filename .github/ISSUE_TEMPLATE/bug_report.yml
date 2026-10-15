@@ -72,7 +72,7 @@ body:
     attributes:
       label: Plugin log
       description: |
-        Easiest: open the settings window of an Output or App dial and use **Diagnostics** at the end: the copy icon copies a report with versions and the end of the log.
+        Easiest: click **Log** at the bottom of the plugin's settings (next to "Help & feedback"). It opens the Diagnostics field: the copy icon copies a report with the versions and the end of the log (tokens, passwords and e-mail addresses are hidden), "Report an issue" copies it and opens this page.
         Or the files: `%APPDATA%\Elgato\StreamDeck\Plugins\de.boriskemper.system-audio-controller.sdPlugin\logs\`
         Paste the part around the time of the problem.
       render: text
