@@ -1,6 +1,6 @@
 {
     "name": "sac-plugin",
-    "version": "0.1.0-beta.3",
+    "version": "0.1.0-beta.4",
     "private": true,
     "description": "SA-C — System Audio Controller: the Stream Deck plugin",
     "license": "MIT",
