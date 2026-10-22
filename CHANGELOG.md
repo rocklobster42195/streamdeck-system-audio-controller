@@ -5,6 +5,7 @@ All notable changes to SA-C (System Audio Controller) are documented here.
 ## [Unreleased]
 
 ### Fixed
+- **One look for all keys (kit 0.1.0-alpha.36): one symbol size, no discs behind symbols, the hourglass replaces the symbol, shuffle is the thin crossed arrows (on) or the parallel arrows (off), and every error is the same red badge in the top left corner of a key.** (From a beta tester's remark that the keys looked like they belong to different plugins.)
 - **Fixed: a skip no longer looks like a pause.** Between two tracks the app is silent for a moment while its session still says "playing"; the keys now keep showing "playing" for up to 2.5 s of silence (something that did play, an app with sound here). A real pause shows at once. A cover brought down to 256 px (kit 0.1.0-alpha.28) and the kit's smaller Panorama frames (alpha.28/29) make the keys lighter for Stream Deck.
 - **Fixed: A new cover's colour reached the Panorama late: the colour fade took four seconds instead of one (kit 0.1.0-alpha.23).**
 - **Fixed: a dial in a shared Panorama stayed black** after its plugin (or another one in the row) restarted, until the plugin leading the row restarted too (kit 0.1.0-alpha.7).

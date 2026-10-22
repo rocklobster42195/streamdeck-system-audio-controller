@@ -3,7 +3,7 @@
 // with class "pi-win" show only there.
 import { definePiComponents, initChoiceOptions, initConditionalVisibility, initSettingsWindow, sd, settingsWindowShown, translateDom } from "@rocklobster42195/streamdeck-kit/pi";
 import { SacDuckPeers } from "./duck-peers";
-import { mdiCardTextOutline, mdiEqualizer, mdiFormatAlignLeft, mdiFormatAlignRight, mdiChartBar, mdiChartDonut, mdiCircleSlice3, mdiGauge, mdiHorseshoe, mdiRepeat, mdiShuffleVariant, mdiSkipNext, mdiSkipPrevious, mdiVolumeMedium, mdiVolumeMinus, mdiVolumeOff, mdiVolumePlus } from "@mdi/js";
+import { mdiCardTextOutline, mdiEqualizer, mdiFormatAlignLeft, mdiFormatAlignRight, mdiChartBar, mdiChartDonut, mdiCircleSlice3, mdiGauge, mdiHorseshoe, mdiRepeat, mdiShuffle, mdiSkipNext, mdiSkipPrevious, mdiVolumeMedium, mdiVolumeMinus, mdiVolumeOff, mdiVolumePlus } from "@mdi/js";
 
 /** MDI paths for <pi-choice data-options='[{"icon":"…"}]'> tiles. */
 const CHOICE_ICONS: Record<string, string> = {
@@ -17,7 +17,7 @@ const CHOICE_ICONS: Record<string, string> = {
     gaugeOpen: mdiHorseshoe,
     next: mdiSkipNext,
     previous: mdiSkipPrevious,
-    shuffle: mdiShuffleVariant,
+    shuffle: mdiShuffle,
     repeat: mdiRepeat,
     volumeUp: mdiVolumePlus,
     volumeDown: mdiVolumeMinus,

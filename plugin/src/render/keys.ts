@@ -2,8 +2,8 @@
 // key (red and crossed out when muted, a small level otherwise), the Device key (the output device
 // with a fitting icon; the default one "on": tinted plate and frame in Cerise) and the App key.
 // A name is left out when the user set a Stream Deck title (it would sit on top of it).
-import { escapeXml, KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keySvg, meterBar, wrap } from "@rocklobster42195/streamdeck-kit";
-import { mdiAlertCircleOutline, mdiApplicationOutline, mdiVolumeOff, mdiHeadphones, mdiMicrophone, mdiMicrophoneOff, mdiMonitorSpeaker, mdiSpeaker, mdiSpeakerMultiple } from "@mdi/js";
+import { escapeXml, KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keyStatusBadge, keySvg, meterBar, wrap } from "@rocklobster42195/streamdeck-kit";
+import { mdiApplicationOutline, mdiVolumeOff, mdiHeadphones, mdiMicrophone, mdiMicrophoneOff, mdiMonitorSpeaker, mdiSpeaker, mdiSpeakerMultiple } from "@mdi/js";
 import { ACCENT } from "./output-strip";
 
 const SIZE = 144;
@@ -75,10 +75,10 @@ export function renderAppKey(v: AppKeyView): string {
     const showLevel = !!v.levels?.length && !v.inactive && !muted;
     const parts: string[] = [];
     // The icon as large as the family's: full size alone, smaller with a name, a label or a level
-    const place = muted || name || showLevel ? (name && showLevel ? { size: 68, x: 38, y: 6 } : KEY_ICON.withCaption) : KEY_ICON.full;
+    const place = muted || name || showLevel ? KEY_ICON.withCaption : KEY_ICON.full;
     if (v.icon) parts.push(`<image href="${v.icon}" x="${place.x}" y="${place.y}" width="${place.size}" height="${place.size}"/>`);
     else parts.push(keyIcon(mdiApplicationOutline, place, v.inactive ? KEY_TIERS.unavailable : KEY_TIERS.available));
-    if (muted) return keySvg([...parts, keyIcon(mdiVolumeOff, { size: 34, x: SIZE - 44, y: 8 }, "#FFFFFF"), keyCaption(v.mutedLabel, "#FFFFFF")], MUTE_RED);
+    if (muted) return keySvg([...parts, keyIcon(mdiVolumeOff, { size: 22, x: SIZE - 35, y: 13 }, "#FFFFFF"), keyCaption(v.mutedLabel, "#FFFFFF")], MUTE_RED);
     const ink = v.inactive ? KEY_TIERS.off : "#FFFFFF";
     if (name && showLevel) parts.push(keyCaption(name, ink, { y: 100, max: 20, min: 13 }), ...level(v.levels!, v.peaks, 116));
     else if (name) parts.push(keyCaption(name, ink));
@@ -90,7 +90,8 @@ export function renderAppKey(v: AppKeyView): string {
 export function renderKeyMessage(label: string, warn = false): string {
     const lines = wrap(label, SIZE - 16, 16, 2);
     return keySvg([
-        keyIcon(warn ? mdiAlertCircleOutline : mdiSpeaker, { size: 48, x: 48, y: 26 }, warn ? "#ff5a5a" : KEY_TIERS.off),
+        keyIcon(mdiSpeaker, KEY_ICON.withCaption, KEY_TIERS.off),
+        ...(warn ? [keyStatusBadge("failed")] : []),
         ...lines.map((l, i) => `<text x="${SIZE / 2}" y="${100 + i * 19}" ${font} font-size="16" fill="${SOFT}" text-anchor="middle">${escapeXml(l)}</text>`),
     ]);
 }
