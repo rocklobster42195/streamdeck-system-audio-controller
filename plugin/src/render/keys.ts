@@ -2,7 +2,7 @@
 // key (red and crossed out when muted, a small level otherwise), the Device key (the output device
 // with a fitting icon; the default one "on": tinted plate and frame in Cerise) and the App key.
 // A name is left out when the user set a Stream Deck title (it would sit on top of it).
-import { escapeXml, KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keyStatusBadge, keySvg, meterBar, wrap } from "@rocklobster42195/streamdeck-kit";
+import { escapeXml, KEY_ICON, KEY_TIERS, keyActiveFrame, keyActivePlate, keyCaption, keyIcon, keyLabel, keyStatusBadge, keySvg, meterBar, wrap } from "@rocklobster42195/streamdeck-kit";
 import { mdiApplicationOutline, mdiVolumeOff, mdiHeadphones, mdiMicrophone, mdiMicrophoneOff, mdiMonitorSpeaker, mdiSpeaker, mdiSpeakerMultiple } from "@mdi/js";
 import { ACCENT } from "./output-strip";
 
@@ -50,8 +50,10 @@ export function renderDeviceKey(v: DeviceKeyView): string {
     const ink = v.active ? ACCENT : KEY_TIERS.off;
     const parts: string[] = [];
     if (v.active) parts.push(keyActivePlate(ACCENT));
-    parts.push(keyIcon(deviceIcon(v.device), name ? KEY_ICON.withCaption : KEY_ICON.full, ink));
-    if (name) parts.push(keyCaption(name, v.active ? "#FFFFFF" : SOFT));
+    if (name) {
+        const l = keyLabel(name, v.active ? "#FFFFFF" : SOFT);
+        parts.push(keyIcon(deviceIcon(v.device), l.place, ink), l.svg);
+    } else parts.push(keyIcon(deviceIcon(v.device), KEY_ICON.full, ink));
     if (v.active) parts.push(keyActiveFrame(ACCENT));
     return keySvg(parts);
 }
@@ -74,14 +76,16 @@ export function renderAppKey(v: AppKeyView): string {
     const name = v.name?.trim();
     const showLevel = !!v.levels?.length && !v.inactive && !muted;
     const parts: string[] = [];
-    // The icon as large as the family's: full size alone, smaller with a name, a label or a level
-    const place = muted || name || showLevel ? KEY_ICON.withCaption : KEY_ICON.full;
+    // The icon as large as the family's: full size alone, and with a name or a label under it; a name that
+    // breaks onto two lines, or a name above a level bar, gets a smaller one (kit keyLabel)
+    const named = name && !muted && !showLevel ? keyLabel(name, v.inactive ? KEY_TIERS.off : "#FFFFFF") : undefined;
+    const place = named ? named.place : name && showLevel ? KEY_ICON.compact : muted || showLevel ? KEY_ICON.withCaption : KEY_ICON.full;
     if (v.icon) parts.push(`<image href="${v.icon}" x="${place.x}" y="${place.y}" width="${place.size}" height="${place.size}"/>`);
     else parts.push(keyIcon(mdiApplicationOutline, place, v.inactive ? KEY_TIERS.unavailable : KEY_TIERS.available));
     if (muted) return keySvg([...parts, keyIcon(mdiVolumeOff, { size: 22, x: SIZE - 35, y: 13 }, "#FFFFFF"), keyCaption(v.mutedLabel, "#FFFFFF")], MUTE_RED);
     const ink = v.inactive ? KEY_TIERS.off : "#FFFFFF";
     if (name && showLevel) parts.push(keyCaption(name, ink, { y: 100, max: 20, min: 13 }), ...level(v.levels!, v.peaks, 116));
-    else if (name) parts.push(keyCaption(name, ink));
+    else if (named) parts.push(named.svg);
     else if (showLevel) parts.push(...level(v.levels!, v.peaks, 114));
     return keySvg(parts);
 }
@@ -90,7 +94,7 @@ export function renderAppKey(v: AppKeyView): string {
 export function renderKeyMessage(label: string, warn = false): string {
     const lines = wrap(label, SIZE - 16, 16, 2);
     return keySvg([
-        keyIcon(mdiSpeaker, KEY_ICON.withCaption, KEY_TIERS.off),
+        keyIcon(mdiSpeaker, KEY_ICON.compact, KEY_TIERS.off),
         ...(warn ? [keyStatusBadge("failed")] : []),
         ...lines.map((l, i) => `<text x="${SIZE / 2}" y="${100 + i * 19}" ${font} font-size="16" fill="${SOFT}" text-anchor="middle">${escapeXml(l)}</text>`),
     ]);
