@@ -2,9 +2,13 @@
 
 Your computer's sound on your Stream Deck: the volume with a live level meter, each app's volume (Spotify, Firefox, Discord, …), a mic mute key, and a key to switch between headphones and speakers. SA-C also shares that level with other Stream Deck plugins through **deckbus**, so, for example, the Panorama of [Music Assistant Controller](https://github.com/rocklobster42195/streamdeck-music-assistant-controller) can move with the music on your PC.
 
-> Unofficial community plugin. Not affiliated with Elgato or Microsoft.
+[![Latest, beta included](https://img.shields.io/github/v/release/rocklobster42195/streamdeck-system-audio-controller?include_prereleases&label=latest&color=E14190)](https://github.com/rocklobster42195/streamdeck-system-audio-controller/releases)
+[![Ko-fi](https://img.shields.io/badge/support-Ko--fi-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/rocklobster42195)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**Status:** early, available as a [beta](../../releases). Windows only for now; macOS is planned.
+> **Disclaimer:** This is an independent, community-made plugin. It is not affiliated with, endorsed by, or officially connected to Microsoft or Elgato in any way. Windows is a trademark of Microsoft Corporation.
+
+**Status:** beta, available on GitHub (see the [releases](https://github.com/rocklobster42195/streamdeck-system-audio-controller/releases)). Windows only for now; macOS is planned.
 
 > **⚠️ Before you install: SA-C needs a small Windows helper to run.** To reach Windows' audio system it starts a PowerShell script once that compiles a few C# files (they are plain text in the plugin folder, nothing is installed, nothing goes to the internet). **On company or managed PCs, or with security software that blocks PowerShell scripts or compiling C#, the helper can't start, and SA-C then can't work.** Keys and dials show **"Audio not available"** in that case. See [How it works](#how-it-works) and [Troubleshooting](#troubleshooting).
 
@@ -25,6 +29,9 @@ The picture comes from the simulator with invented music and an invented system 
 - [Troubleshooting](#troubleshooting)
 - [Planned](#planned)
 - [Development](#development)
+- [Part of a family](#part-of-a-family)
+- [Ideas and feedback](#ideas-and-feedback)
+- [Support](#support)
 - [Credits and licence](#credits-and-licence)
 
 ## Actions
@@ -195,6 +202,33 @@ npm run link -w sac-plugin   # install the dev build into Stream Deck
 The simulator never touches your real volume: it runs the plugin with `SAC_HELPER=tools/fake-helper.mjs`, a stand-in that speaks the helper's protocol.
 
 The plugin is built on [`@rocklobster42195/streamdeck-kit`](https://github.com/rocklobster42195/streamdeck-kit) (rendering, meters, settings panels, deckbus).
+
+## Part of a family
+
+System Audio Controller is one of a small family of Stream Deck plugins. They are built on the same open foundation, **[streamdeck-kit](https://github.com/rocklobster42195/streamdeck-kit)** (MIT, on npm), so they look and feel the same and share what is worth sharing.
+
+| | Plugin | For | Status |
+|---|---|---|---|
+| ![Sonos Controller](https://img.shields.io/badge/%20%20%20-87AE73?style=flat-square) | [Sonos Controller](https://github.com/rocklobster42195/streamdeck-sonos-controller) | Sonos speakers | on the Marketplace, 0.5.0 in beta |
+| ![Music Assistant Controller](https://img.shields.io/badge/%20%20%20-009FDF?style=flat-square) | [Music Assistant Controller](https://github.com/rocklobster42195/streamdeck-music-assistant-controller) | your Music Assistant server and its players | alpha |
+| ![System Audio Controller](https://img.shields.io/badge/%20%20%20-E14190?style=flat-square) | **System Audio Controller** (this plugin) | your computer's sound: volume, apps, microphone | beta |
+| ![X-Air Controller](https://img.shields.io/badge/%20%20%20-00ACA8?style=flat-square) | [X-Air Controller](https://github.com/rocklobster42195/streamdeck-xair-controller) | Behringer X-Air and Midas mixers | alpha |
+| ![Home Assistant Controller](https://img.shields.io/badge/%20%20%20-005DA0?style=flat-square) | [Home Assistant Controller](https://github.com/rocklobster42195/streamdeck-home-assistant-controller) | your smart home, also over MQTT | alpha |
+
+What they have in common:
+
+- **The same look and feel.** Keys and dials are drawn by the same kit: one symbol size, the same colours, errors always in the same place, and a settings window in one style with diagnostics, in English, German and Spanish.
+- **One Panorama across plugins.** Dials of different plugins in one row share an effect (particles, a picture, a webcam, …) as if they were one display.
+- **They find each other.** Through [deckbus](#works-with-other-plugins-deckbus) the plugins share players and colours without any setup, on your computer only.
+- **Reusable.** The kit is open, MIT licensed and on npm as [`@rocklobster42195/streamdeck-kit`](https://www.npmjs.com/package/@rocklobster42195/streamdeck-kit). If you build Stream Deck plugins yourself, take what helps.
+
+## Ideas and feedback
+
+Ideas from outside are very welcome: they show what I stopped seeing on my own deck. Please open an [issue](https://github.com/rocklobster42195/streamdeck-system-audio-controller/issues/new/choose) with your idea or problem. Small fixes as pull requests are welcome too; for bigger things, please start with an issue. Code that every plugin could use (drawing, effects, the settings window) belongs in [streamdeck-kit](https://github.com/rocklobster42195/streamdeck-kit).
+
+## Support
+
+This plugin started as a tool for my own Stream Deck. It is free and MIT licensed, and everyone is welcome to use it. If you like it, a coffee and a beer are always welcome: **[ko-fi.com/rocklobster42195](https://ko-fi.com/rocklobster42195)**.
 
 ## Credits and licence
 
